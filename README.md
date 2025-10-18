@@ -1,11 +1,4 @@
-# kamAI – Job Matching Platform
+# Cloud-Based AI Resume Screening (kamAI)
 
-A Django + DRF project that matches candidates to jobs using machine learning.  
-Part of the **Distributed Cloud Computing** and **Advanced Software Engineering** coursework.
+A **Django + Django REST Framework (DRF)** based web application designed to intelligently match candidates to suitable job postings using **AI-driven resume analysis**.  
 
-## Quick Start
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -django djangorestframework djangorestframework-simplejwt
-python manage.py runserver
