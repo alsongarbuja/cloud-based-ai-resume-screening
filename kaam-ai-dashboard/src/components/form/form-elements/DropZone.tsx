@@ -16,6 +16,10 @@ const DropzoneComponent: React.FC = () => {
       "image/webp": [],
       "image/svg+xml": [],
     },
+    multiple: undefined,
+    onDragEnter: undefined,
+    onDragOver: undefined,
+    onDragLeave: undefined,
   });
   return (
     <ComponentCard title="Dropzone">
@@ -34,9 +38,9 @@ const DropzoneComponent: React.FC = () => {
           {/* Hidden Input */}
           <input {...getInputProps()} />
 
-          <div className="dz-message flex flex-col items-center !m-0">
+          <div className="dz-message flex flex-col items-center m-0!">
             {/* Icon Container */}
-            <div className="mb-[22px] flex justify-center">
+            <div className="mb-5-5 flex justify-center">
               <div className="flex h-[68px] w-[68px]  items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
                 <svg
                   className="fill-current"

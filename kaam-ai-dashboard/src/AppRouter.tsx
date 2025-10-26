@@ -6,6 +6,9 @@ import AppLayout from "./layouts/AppLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import SignIn from "./pages/auth/Signin";
 import SignUp from "./pages/auth/Signup";
+import JobsList from "./pages/jobs/List";
+import NotFound from "./pages/NotFound";
+import JobsAddForm from "./pages/jobs/AddForm";
 
 const router = createBrowserRouter([
   {
@@ -28,7 +31,24 @@ const router = createBrowserRouter([
         path: "/dashboard",
         element: <Dashboard />,
       },
+      {
+        path: "/jobs",
+        children: [
+          {
+            path: "",
+            element: <JobsList />,
+          },
+          {
+            path: "add",
+            element: <JobsAddForm />,
+          },
+        ],
+      },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 
