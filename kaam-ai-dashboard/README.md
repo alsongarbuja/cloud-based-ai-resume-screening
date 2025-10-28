@@ -1,75 +1,58 @@
-# React + TypeScript + Vite
+# KaamAI - Dashboard Side
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the dashboard part of the overall KaamAI project.
 
-Currently, two official plugins are available:
+### Table of contents
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [Tech Stack](#tech-stacks)
+- [Getting starting](#getting-started)
+- [Develop locally](#local-development)
+- [Production](#production-deployment)
 
-## React Compiler
+## Tech stacks
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Following are the tech stacks used to build this dashboard.
 
-Note: This will impact Vite dev & build performances.
+- [Vite - Build Tool](https://vite.dev/)
+- [React - Framework](https://react.dev/)
+- [Tailwindcss - Styling](https://tailwindcss.com/)
+- [Tanstack - API integration](https://tanstack.com/)
 
-## Expanding the ESLint configuration
+## Getting started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+To start running this project you need this following:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. A js package manager [npm](https://www.npmjs.com/) or [pnpm](https://pnpm.io/)
+2. Install the packages `npm i` or `pnpm i`
+3. Add a `.env` file at the root of the _kaam-ai-dashboard_ folder
+4. Add following into the env file and add your own configuration
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_BASE_URL=<api-base-url>
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+5. Follow the below [local development](#local-development) steps
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Local development
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+To run the project locally follow the following steps.
+
+> [!Warning]
+>
+> Since it is in early development there are still changes to be made in this project such as creation of environment files.
+
+1. `cd` into _kaam-ai-dashboard_ folder
+
+```bash
+cd kaam-ai-dashboard
 ```
+
+2. Start the project with this command
+
+```bash
+pnpm dev
+```
+
+## Production deployment
+
+For the production deployment a github actions will be soon written.
