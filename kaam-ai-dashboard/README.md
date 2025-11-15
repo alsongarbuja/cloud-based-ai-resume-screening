@@ -1,75 +1,58 @@
-# Nuxt Minimal Starter
+# KaamAI - Dashboard Side
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This is the dashboard part of the overall KaamAI project.
 
-## Setup
+### Table of contents
 
-Make sure to install dependencies:
+- [Tech Stack](#tech-stacks)
+- [Getting starting](#getting-started)
+- [Develop locally](#local-development)
+- [Production](#production-deployment)
 
-```bash
-# npm
-npm install
+## Tech stacks
 
-# pnpm
-pnpm install
+Following are the tech stacks used to build this dashboard.
 
-# yarn
-yarn install
+- [Vite - Build Tool](https://vite.dev/)
+- [React - Framework](https://react.dev/)
+- [Tailwindcss - Styling](https://tailwindcss.com/)
+- [Tanstack - API integration](https://tanstack.com/)
 
-# bun
-bun install
+## Getting started
+
+To start running this project you need this following:
+
+1. A js package manager [npm](https://www.npmjs.com/) or [pnpm](https://pnpm.io/)
+2. Install the packages `npm i` or `pnpm i`
+3. Add a `.env` file at the root of the _kaam-ai-dashboard_ folder
+4. Add following into the env file and add your own configuration
+
+```env
+VITE_API_BASE_URL=<api-base-url>
 ```
 
-## Development Server
+5. Follow the below [local development](#local-development) steps
 
-Start the development server on `http://localhost:3000`:
+## Local development
+
+To run the project locally follow the following steps.
+
+> [!Warning]
+>
+> Since it is in early development there are still changes to be made in this project such as creation of environment files.
+
+1. `cd` into _kaam-ai-dashboard_ folder
 
 ```bash
-# npm
-npm run dev
+cd kaam-ai-dashboard
+```
 
-# pnpm
+2. Start the project with this command
+
+```bash
 pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+## Production deployment
 
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+For the production deployment a github actions will be soon written.
