@@ -9,18 +9,28 @@ import { CompaniesModule } from './companies/companies.module';
 import { ResumesModule } from './resumes/resumes.module';
 import { AppliedModule } from './applied/applied.module';
 import { ResultsModule } from './results/results.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'root',
-      database: 'kam_ai_db',
-      autoLoadEntities: true,
-      synchronize: true, // false in production
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get('database.host'),
+        port: configService.get('database.port'),
+        username: configService.get('database.username'),
+        password: configService.get('database.password'),
+        database: configService.get('database.name'),
+        autoLoadEntities: true,
+        synchronize: true, // false in production
+      }),
+      inject: [ConfigService],
     }),
     JobsModule,
     UsersModule,
