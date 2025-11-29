@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JobsModule } from './jobs/jobs.module';
@@ -9,8 +11,27 @@ import { AppliedModule } from './applied/applied.module';
 import { ResultsModule } from './results/results.module';
 
 @Module({
-  imports: [JobsModule, UsersModule, CompaniesModule, ResumesModule, AppliedModule, ResultsModule],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: 'root',
+      database: 'kam_ai_db',
+      autoLoadEntities: true,
+      synchronize: true, // false in production
+    }),
+    JobsModule,
+    UsersModule,
+    CompaniesModule,
+    ResumesModule,
+    AppliedModule,
+    ResultsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private datasource: DataSource) {}
+}
