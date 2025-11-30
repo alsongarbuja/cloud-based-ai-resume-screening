@@ -10,6 +10,8 @@ import { ResumesModule } from './resumes/resumes.module';
 import { AppliedModule } from './applied/applied.module';
 import { ResultsModule } from './results/results.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { IndustryModule } from './industry/industry.module';
+import { IndustryModule } from './industry/industry.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -38,6 +40,7 @@ import configuration from './config/configuration';
     ResumesModule,
     AppliedModule,
     ResultsModule,
+    IndustryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

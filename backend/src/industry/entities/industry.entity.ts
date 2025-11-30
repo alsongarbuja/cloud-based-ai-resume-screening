@@ -1,21 +1,23 @@
 import { Job } from 'src/jobs/entities/job.entity';
 import {
+  Column,
   CreateDateColumn,
   Entity,
-  OneToOne,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class Result {
+export class Industry {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // rankings
+  @Column()
+  name: string;
 
-  @OneToOne(() => Job, (job) => job.result)
-  job: Job;
+  @ManyToMany(() => Job, (job) => job.industries)
+  jobs: Job[];
 
   @CreateDateColumn()
   createdAt: Date;

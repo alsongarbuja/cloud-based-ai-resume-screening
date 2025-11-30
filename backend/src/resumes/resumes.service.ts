@@ -1,19 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { CreateResumeDto } from './dto/create-resume.dto';
 import { UpdateResumeDto } from './dto/update-resume.dto';
+import { Resume } from './entities/resume.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ResumesService {
+  constructor(
+    @InjectRepository(Resume)
+    private resumeRepository: Repository<Resume>,
+  ) {}
+
   create(createResumeDto: CreateResumeDto) {
     return 'This action adds a new resume';
   }
 
   findAll() {
-    return `This action returns all resumes`;
+    return this.resumeRepository.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} resume`;
+    return this.resumeRepository.findBy({ id });
   }
 
   update(id: number, updateResumeDto: UpdateResumeDto) {
@@ -21,6 +29,6 @@ export class ResumesService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} resume`;
+    return this.resumeRepository.delete(id);
   }
 }

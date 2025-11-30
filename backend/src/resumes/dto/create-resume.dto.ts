@@ -1,1 +1,4 @@
-export class CreateResumeDto {}
+export class CreateResumeDto {
+  name: string;
+  resumeLink: string;
+}

@@ -17,7 +17,7 @@ export class UsersService {
 
     user.username = createUserDto.username;
     user.email = createUserDto.email;
-    user.password = createUserDto.password;
+    user.profilePic = createUserDto.profilePic;
 
     return this.userRepository.save(user);
   }

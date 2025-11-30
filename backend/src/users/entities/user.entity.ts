@@ -1,4 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Applied } from 'src/applied/entities/applied.entity';
+import { Company } from 'src/companies/entities/company.entity';
+import { Resume } from 'src/resumes/entities/resume.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -12,5 +23,23 @@ export class User {
   email: string;
 
   @Column()
-  password: string;
+  type: string;
+
+  @Column()
+  profilePic: string;
+
+  @OneToMany(() => Applied, (applied) => applied.userId)
+  appliedJobs: Applied[];
+
+  @OneToMany(() => Resume, (resume) => resume.resumeLink)
+  resumes: Resume[];
+
+  @OneToOne(() => Company, (company) => company.createdBy)
+  company: Company;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
