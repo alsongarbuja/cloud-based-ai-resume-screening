@@ -9,7 +9,7 @@ const envSchema = z.object({
   NEXTAUTH_URL: z.string().url(),
 
   FIREBASE_ADMIN_PROJECT_ID: z.string().optional(),
-  FIREBASE_ADMIN_CLIENT_EMAIL: z.string().email().optional(),
+  FIREBASE_ADMIN_CLIENT_EMAIL: z.string().optional(),
   FIREBASE_ADMIN_PRIVATE_KEY: z.string().optional(),
 
   NEXT_PUBLIC_FIREBASE_API_KEY: z.string().optional(),
@@ -18,6 +18,9 @@ const envSchema = z.object({
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_APP_ID: z.string().optional(),
+
+  NEXT_PUBLIC_BACKEND_URL: z.string(),
+  AUTH_COOKIE_TOKEN_NAME: z.string(),
 
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });

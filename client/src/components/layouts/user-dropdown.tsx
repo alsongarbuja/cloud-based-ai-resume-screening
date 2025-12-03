@@ -14,8 +14,8 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import Link from "next/link";
 import { Heart, Layers2, LogOut, FileText, Users } from "lucide-react";
-import { signOut } from "next-auth/react";
-import { ROUTES, getDynamicRoute } from "@/config/routes";
+// import { signOut } from "next-auth/react";
+import { ROUTES } from "@/config/routes";
 
 interface UserInfoProps {
   email: string;
@@ -25,13 +25,11 @@ interface UserInfoProps {
 }
 
 const UserDropdown = ({ email, name, image, userType }: UserInfoProps) => {
-  
   const handleSignOut = async () => {
     try {
-      await signOut({
-        redirect: true,
-        callbackUrl: ROUTES.HOME
-      });
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`);
+
+      window.location.href = ROUTES.HOME;
     } catch (error) {
       console.error("Sign out error:", error);
       window.location.href = ROUTES.HOME;
@@ -48,12 +46,8 @@ const UserDropdown = ({ email, name, image, userType }: UserInfoProps) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48 mt-1" align="end">
         <DropdownMenuLabel className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-medium text-foreground">
-            {name || "User"}
-          </span>
-          <span className="truncate text-xs font-normal text-muted-foreground">
-            {email}
-          </span>
+          <span className="truncate text-sm font-medium text-foreground">{name || "User"}</span>
+          <span className="truncate text-xs font-normal text-muted-foreground">{email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
@@ -61,23 +55,13 @@ const UserDropdown = ({ email, name, image, userType }: UserInfoProps) => {
             <>
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={ROUTES.FAVORITES}>
-                  <Heart
-                    size={16}
-                    strokeWidth={2}
-                    className="opacity-60"
-                    aria-hidden="true"
-                  />
+                  <Heart size={16} strokeWidth={2} className="opacity-60" aria-hidden="true" />
                   <span>Saved Jobs</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={ROUTES.MY_APPLICATIONS}>
-                  <FileText
-                    size={16}
-                    strokeWidth={2}
-                    className="opacity-60"
-                    aria-hidden="true"
-                  />
+                  <FileText size={16} strokeWidth={2} className="opacity-60" aria-hidden="true" />
                   <span>My Applications</span>
                 </Link>
               </DropdownMenuItem>
@@ -88,34 +72,19 @@ const UserDropdown = ({ email, name, image, userType }: UserInfoProps) => {
             <>
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={ROUTES.MY_JOBS}>
-                  <Layers2
-                    size={16}
-                    strokeWidth={2}
-                    className="opacity-60"
-                    aria-hidden="true"
-                  />
+                  <Layers2 size={16} strokeWidth={2} className="opacity-60" aria-hidden="true" />
                   <span>My Job Listings</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={ROUTES.MY_JOB_APPLICATIONS}>
-                  <Users
-                    size={16}
-                    strokeWidth={2}
-                    className="opacity-60"
-                    aria-hidden="true"
-                  />
+                  <Users size={16} strokeWidth={2} className="opacity-60" aria-hidden="true" />
                   <span>Applications Received</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={ROUTES.POST_JOB}>
-                  <FileText
-                    size={16}
-                    strokeWidth={2}
-                    className="opacity-60"
-                    aria-hidden="true"
-                  />
+                  <FileText size={16} strokeWidth={2} className="opacity-60" aria-hidden="true" />
                   <span>Post New Job</span>
                 </Link>
               </DropdownMenuItem>
@@ -123,16 +92,8 @@ const UserDropdown = ({ email, name, image, userType }: UserInfoProps) => {
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          className="cursor-pointer"
-          onClick={handleSignOut}
-        >
-          <LogOut
-            size={16}
-            strokeWidth={2}
-            className="opacity-60"
-            aria-hidden="true"
-          />
+        <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut}>
+          <LogOut size={16} strokeWidth={2} className="opacity-60" aria-hidden="true" />
           <span>Logout</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

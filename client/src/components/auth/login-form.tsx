@@ -1,34 +1,28 @@
 "use client";
 
 import React, { useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import { GitHub, GitHubBlack } from "@/assets/svg/GitHub";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+// import { GitHub, GitHubBlack } from "@/assets/svg/GitHub";
 import Google from "@/assets/svg/Google";
-import { signIn, useSession } from "next-auth/react";
+// import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ROUTES, getDynamicRoute } from "@/config/routes";
 
 const LoginForm = () => {
-  const { data: session } = useSession();
+  // const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  const redirectTo = searchParams.get('redirect') || ROUTES.HOME;
-  const error = searchParams.get('error');
-  const email = searchParams.get('email');
 
-  useEffect(() => {
-    if (session?.user) {
-      router.push(redirectTo);
-    }
-  }, [session, router, redirectTo]);
+  const redirectTo = searchParams.get("redirect") || ROUTES.HOME;
+  const error = searchParams.get("error");
+  const email = searchParams.get("email");
+
+  // useEffect(() => {
+  //   if (session?.user) {
+  //     router.push(redirectTo);
+  //   }
+  // }, [session, router, redirectTo]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -52,9 +46,14 @@ const LoginForm = () => {
       {error === "AccessDenied" && (
         <div className="bg-yellow-500/10 dark:bg-yellow-500/20 border border-yellow-500/50 text-yellow-700 dark:text-yellow-500 px-5 py-4 rounded-xl backdrop-blur-sm">
           <p className="font-semibold text-base mb-1.5">Complete Profile Required</p>
-          <p className="text-sm opacity-90 mb-3">Please complete your profile setup before accessing the platform.</p>
+          <p className="text-sm opacity-90 mb-3">
+            Please complete your profile setup before accessing the platform.
+          </p>
           <Link
-            href={getDynamicRoute.registerWithRedirect(redirectTo !== ROUTES.HOME ? redirectTo : undefined, true)}
+            href={getDynamicRoute.registerWithRedirect(
+              redirectTo !== ROUTES.HOME ? redirectTo : undefined,
+              true
+            )}
             className="text-sm font-semibold underline hover:no-underline inline-flex items-center gap-1 hover:gap-2 transition-all"
           >
             Complete profile <span>→</span>
@@ -72,10 +71,13 @@ const LoginForm = () => {
         <CardContent className="px-6 pb-6">
           <div className="flex flex-col gap-3">
             <button
-              onClick={async () => {
-                await signIn("google", {
-                  callbackUrl: `${ROUTES.AUTH_CALLBACK}${redirectTo !== ROUTES.HOME ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`,
-                });
+              // onClick={async () => {
+              //   await signIn("google", {
+              //     callbackUrl: `${ROUTES.AUTH_CALLBACK}${redirectTo !== ROUTES.HOME ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`,
+              //   });
+              // }}
+              onClick={() => {
+                window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google?redirectTo=${encodeURIComponent(redirectTo)}`;
               }}
               className="group w-full flex items-center justify-center gap-3 px-5 py-3.5 border-2 border-border/50 rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 font-medium"
             >
@@ -83,7 +85,7 @@ const LoginForm = () => {
               <span>Continue with Google</span>
             </button>
 
-            <button
+            {/* <button
               onClick={async () => {
                 await signIn("github", {
                   callbackUrl: `${ROUTES.AUTH_CALLBACK}${redirectTo !== ROUTES.HOME ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`,
@@ -94,7 +96,7 @@ const LoginForm = () => {
               <GitHub className="size-5 hidden dark:block group-hover:scale-110 transition-transform duration-200" />
               <GitHubBlack className="size-5 dark:hidden group-hover:scale-110 transition-transform duration-200" />
               <span>Continue with GitHub</span>
-            </button>
+            </button> */}
           </div>
         </CardContent>
       </Card>
@@ -102,7 +104,11 @@ const LoginForm = () => {
       <div className="text-center text-sm pt-2">
         <span className="text-muted-foreground">Don't have an account? </span>
         <Link
-          href={redirectTo !== ROUTES.HOME ? getDynamicRoute.registerWithRedirect(redirectTo) : ROUTES.REGISTER}
+          href={
+            redirectTo !== ROUTES.HOME
+              ? getDynamicRoute.registerWithRedirect(redirectTo)
+              : ROUTES.REGISTER
+          }
           className="text-primary hover:underline font-semibold inline-flex items-center gap-1 hover:gap-1.5 transition-all"
         >
           Create one here <span>→</span>

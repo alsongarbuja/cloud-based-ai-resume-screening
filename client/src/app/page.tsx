@@ -1,17 +1,17 @@
 // Public job listings page - no authentication required
 import { JobFilterSection, JobListing } from "@/components/jobs";
-import JobListingServer, {
-  JobListingLoading,
-} from "@/components/jobs/job-listing-server";
+import JobListingServer, { JobListingLoading } from "@/components/jobs/job-listing-server";
 import { PublicNavbar } from "@/components/layouts";
 import { Logo, FeatureCard, PricingCard } from "@/components/ui";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { auth } from "@/lib/auth/config";
+// import { auth } from "@/lib/auth/config";
 import { isAdminSdkAvailable } from "@/lib/database/firebase-admin";
 import { Suspense } from "react";
 import { Briefcase, Users, Search, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/config/routes";
+import { cookies } from "next/headers";
+import { User } from "@/types";
 
 type SearchParams = {
   searchParams: Promise<{
@@ -22,14 +22,34 @@ type SearchParams = {
 };
 
 export default async function PublicJobListings({ searchParams }: SearchParams) {
-  const session = await auth();
+  // const session = await auth();
+  const cookieStore = cookies();
+
+  const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "");
+
+  const isUserLoggedIn = !!authToken;
+  let userData: User | null = null;
+
   const params = await searchParams;
   const currentPage = Number(params.page) || 1;
   const jobTypes = params.jobTypes?.split(",") || [];
   const timePosted = params.timePosted || "all";
 
-  // If there is no session (no token) show the landing UI 
-  if (!session?.user) {
+  if (isUserLoggedIn) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile`, {
+        headers: {
+          Cookie: `${process.env.AUTH_COOKIE_TOKEN_NAME || ""}=${authToken.value}`,
+        },
+      });
+      const data = await res.json();
+      userData = data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  if (!userData) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24">
@@ -47,17 +67,22 @@ export default async function PublicJobListings({ searchParams }: SearchParams) 
                 </span>
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Connect talented professionals with amazing opportunities. Whether
-                you&apos;re looking for your next career move or seeking top talent,
-                we&apos;ve got you covered.
+                Connect talented professionals with amazing opportunities. Whether you&apos;re
+                looking for your next career move or seeking top talent, we&apos;ve got you covered.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-              <Link href={ROUTES.REGISTER} className="min-w-[200px] px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-center">
+              <Link
+                href={ROUTES.REGISTER}
+                className="min-w-[200px] px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 text-center"
+              >
                 Get Started
               </Link>
-              <Link href={ROUTES.LOGIN} className="min-w-[200px] px-8 py-4 border-2 border-border hover:border-primary/50 rounded-xl font-semibold hover:bg-accent transition-all duration-200 text-center">
+              <Link
+                href={ROUTES.LOGIN}
+                className="min-w-[200px] px-8 py-4 border-2 border-border hover:border-primary/50 rounded-xl font-semibold hover:bg-accent transition-all duration-200 text-center"
+              >
                 Sign In
               </Link>
             </div>
@@ -194,13 +219,11 @@ export default async function PublicJobListings({ searchParams }: SearchParams) 
     );
   }
 
-  const filterKey = `page=${currentPage};types=${jobTypes.join(
-    ","
-  )};timePosted=${timePosted}`;
+  const filterKey = `page=${currentPage};types=${jobTypes.join(",")};timePosted=${timePosted}`;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <PublicNavbar />
+      <PublicNavbar user={userData} />
       <div className="pt-8 pb-12">
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           <JobFilterSection />

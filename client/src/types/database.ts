@@ -1,14 +1,13 @@
-
 export interface User {
   id: string;
-  name?: string;
+  username?: string;
   email: string;
-  emailVerified?: Date;
-  image?: string;
-  userType?: "COMPANY" | "JOB_SEEKER";
-  onboardingComplete: boolean;
-  companyId?: string;
-  jobSeekerId?: string;
+  // emailVerified?: Date;
+  profilePic?: string;
+  type?: "ORG" | "USER";
+  // onboardingComplete: boolean;
+  // companyId?: string;
+  // jobSeekerId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,7 +18,7 @@ export interface Company {
   location: string;
   about: string;
   website: string;
-  logo: string; 
+  logo: string;
   xAccount?: string;
   userId: string;
   createdAt: Date;
@@ -30,7 +29,7 @@ export interface JobSeeker {
   id: string;
   name: string;
   about: string;
-  resume: string; 
+  resume: string;
   userId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -65,7 +64,7 @@ export interface JobApplication {
   id: string;
   jobId: string;
   jobSeekerId: string;
-  resume: string; 
+  resume: string;
   coverLetter?: string;
   prevPosition?: string;
   prevCompany?: string;
