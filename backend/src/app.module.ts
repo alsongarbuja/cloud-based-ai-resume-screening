@@ -11,7 +11,7 @@ import { AppliedModule } from './applied/applied.module';
 import { ResultsModule } from './results/results.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { IndustryModule } from './industry/industry.module';
-import { IndustryModule } from './industry/industry.module';
+import { AuthModule } from './auth/auth.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -30,7 +30,7 @@ import configuration from './config/configuration';
         password: configService.get('database.password'),
         database: configService.get('database.name'),
         autoLoadEntities: true,
-        synchronize: true, // false in production
+        synchronize: true, // TODO: false in production
       }),
       inject: [ConfigService],
     }),
@@ -41,6 +41,7 @@ import configuration from './config/configuration';
     AppliedModule,
     ResultsModule,
     IndustryModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

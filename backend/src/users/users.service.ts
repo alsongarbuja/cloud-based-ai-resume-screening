@@ -27,8 +27,14 @@ export class UsersService {
   }
 
   findOne(id: number) {
-    return this.userRepository.findBy({
+    return this.userRepository.findOneBy({
       id,
+    });
+  }
+
+  validateUser(email: string) {
+    return this.userRepository.findOneBy({
+      email,
     });
   }
 
