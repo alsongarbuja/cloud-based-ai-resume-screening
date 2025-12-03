@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,33 +9,47 @@ import { formatRelativeTime } from "@/utils/format/relative-time";
 import { MapPin, DollarSign, Calendar, Edit, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
 import { ROUTES, getDynamicRoute } from "@/config/routes";
+import { useQuery } from "@tanstack/react-query";
 
 interface Job {
   id: string;
-  jobTitle: string;
-  jobDescription: string;
-  employmentType: string;
-  location: string;
-  salaryFrom: number;
-  salaryTo: number;
-  listingDuration: number;
-  benefits: string[];
-  status: "DRAFT" | "ACTIVE" | "EXPIRED";
+  title: string;
+  resp: string;
+  req: string;
+  desc: string;
+  // tags: string[];
+  applyBy: Date;
+  // industries: number[];
+  minSalary: number;
+  maxSalary: number;
+  type: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 interface CompanyJobListingsProps {
-  jobs: Job[];
+  token: string;
 }
 
-const CompanyJobListings = ({ jobs }: CompanyJobListingsProps) => {
-  if (jobs.length === 0) {
+const CompanyJobListings = ({ token }: CompanyJobListingsProps) => {
+  const { data } = useQuery({
+    queryKey: ["jobs", "created"],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jobs/mine`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      return data;
+    },
+  });
+  const jobs: Job[] = data || [];
+
+  if (jobs?.length === 0) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-lg font-semibold text-muted-foreground mb-2">
-          No job listings yet
-        </h3>
+        <h3 className="text-lg font-semibold text-muted-foreground mb-2">No job listings yet</h3>
         <p className="text-sm text-muted-foreground mb-4">
           Start by posting your first job to find great candidates.
         </p>
@@ -46,18 +60,18 @@ const CompanyJobListings = ({ jobs }: CompanyJobListingsProps) => {
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "bg-green-500/10 text-green-500 border-green-500/20";
-      case "DRAFT":
-        return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
-      case "EXPIRED":
-        return "bg-gray-500/10 text-gray-500 border-gray-500/20";
-      default:
-        return "bg-gray-500/10 text-gray-500 border-gray-500/20";
-    }
-  };
+  // const getStatusColor = (status: string) => {
+  //   switch (status) {
+  //     case "ACTIVE":
+  //       return "bg-green-500/10 text-green-500 border-green-500/20";
+  //     case "DRAFT":
+  //       return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
+  //     case "EXPIRED":
+  //       return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+  //     default:
+  //       return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+  //   }
+  // };
 
   return (
     <div className="space-y-4">
@@ -76,36 +90,33 @@ const CompanyJobListings = ({ jobs }: CompanyJobListingsProps) => {
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
-                  <CardTitle className="text-lg">{job.jobTitle}</CardTitle>
+                  <CardTitle className="text-lg">{job.title}</CardTitle>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
-                      {job.location}
+                      {/* {job.location} */}
                     </div>
                     <div className="flex items-center gap-1">
                       <DollarSign className="w-4 h-4" />
-                      {formatCurrency(job.salaryFrom)} - {formatCurrency(job.salaryTo)}
+                      {formatCurrency(job.minSalary)} - {formatCurrency(job.maxSalary)}
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      {formatRelativeTime(job.createdAt)}
+                      {/* {formatRelativeTime(job.createdAt)} */}
                     </div>
                   </div>
                 </div>
-                <Badge 
-                  variant="outline" 
-                  className={getStatusColor(job.status)}
-                >
+                {/* <Badge variant="outline" className={getStatusColor(job.status)}>
                   {job.status}
-                </Badge>
+                </Badge> */}
               </div>
             </CardHeader>
-            
+
             <CardContent className="pt-0">
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">{job.employmentType}</Badge>
-                  {job.benefits.slice(0, 3).map((benefit, index) => (
+                  <Badge variant="secondary">{job.type}</Badge>
+                  {/* {job.benefits.slice(0, 3).map((benefit, index) => (
                     <Badge key={index} variant="outline" className="text-xs">
                       {benefit}
                     </Badge>
@@ -114,13 +125,11 @@ const CompanyJobListings = ({ jobs }: CompanyJobListingsProps) => {
                     <Badge variant="outline" className="text-xs">
                       +{job.benefits.length - 3} more
                     </Badge>
-                  )}
+                  )} */}
                 </div>
-                
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {job.jobDescription}
-                </p>
-                
+
+                <p className="text-sm text-muted-foreground line-clamp-2">{job.desc}</p>
+
                 <div className="flex justify-end gap-2 pt-2">
                   <Button variant="outline" size="sm" asChild>
                     <Link href={getDynamicRoute.job(job.id)}>
@@ -134,7 +143,11 @@ const CompanyJobListings = ({ jobs }: CompanyJobListingsProps) => {
                       Edit
                     </Link>
                   </Button>
-                  <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                  >
                     <Trash2 className="w-4 h-4 mr-1" />
                     Delete
                   </Button>

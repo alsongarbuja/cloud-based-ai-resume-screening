@@ -1,10 +1,10 @@
 export interface User {
-  id: string;
+  id: number;
   username?: string;
   email: string;
   // emailVerified?: Date;
   profilePic?: string;
-  type?: "ORG" | "USER";
+  type?: "org" | "user";
   // onboardingComplete: boolean;
   // companyId?: string;
   // jobSeekerId?: string;
@@ -37,19 +37,18 @@ export interface JobSeeker {
 
 export interface Job {
   id: string;
-  jobTitle: string;
-  jobDescription: string;
-  employmentType: string;
+  title: string;
+  desc: string;
+  type: string;
   location: string;
-  salaryFrom: number;
-  salaryTo: number;
-  listingDuration: number;
-  benefits: string[];
-  status: "DRAFT" | "ACTIVE" | "EXPIRED";
-  companyId: string;
+  minSalary: number;
+  maxSalary: number;
+  applyBy: Date;
+  resp: string;
+  req: string;
   createdAt: Date;
   updatedAt: Date;
-  company?: Company;
+  createdBy?: Company;
 }
 
 export interface SavedJob {

@@ -5,5 +5,6 @@ export class CreateCompanyDto {
   website: string;
   linkedin: string;
   xLink: string;
+  createdBy: number;
   logo: string;
 }

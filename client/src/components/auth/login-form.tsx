@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 // import { GitHub, GitHubBlack } from "@/assets/svg/GitHub";
 import Google from "@/assets/svg/Google";
 // import { signIn, useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ROUTES, getDynamicRoute } from "@/config/routes";
 
 const LoginForm = () => {
   // const { data: session } = useSession();
-  const router = useRouter();
+  // const router = useRouter();
   const searchParams = useSearchParams();
 
   const redirectTo = searchParams.get("redirect") || ROUTES.HOME;

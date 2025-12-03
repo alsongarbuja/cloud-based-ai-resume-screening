@@ -15,19 +15,18 @@ interface JobListingProps {
 
 const JobListing = ({ currentPage, jobTypes, timePosted, isPublic = false }: JobListingProps) => {
   const { data, isLoading } = useQuery({
-    queryKey: ['jobs', currentPage, jobTypes, timePosted],
-    queryFn: () => getJobs({
-      employmentType: jobTypes.length > 0 ? jobTypes : undefined,
-      timePosted: timePosted !== "all" ? timePosted : undefined,
-      page: currentPage,
-      limit: PAGINATION.DEFAULT_PAGE_SIZE,
-    }),
+    queryKey: ["jobs", currentPage, jobTypes, timePosted],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jobs`);
+      const data = await res.json();
+      return data;
+    },
     staleTime: CACHE.QUERY_STALE_TIME,
     gcTime: CACHE.QUERY_GC_TIME,
   });
 
-  const jobs = data?.jobs || [];
-  const hasMore = data?.hasMore || false;
+  const jobs = data || [];
+  // const hasMore = data?.hasMore || false;
 
   if (isLoading) {
     return <JobCardSkeletonList count={5} />;
@@ -40,21 +39,20 @@ const JobListing = ({ currentPage, jobTypes, timePosted, isPublic = false }: Job
           <span className="text-2xl">🔍</span>
         </div>
         <h3 className="text-lg font-medium mb-2">No jobs found</h3>
-        <p className="text-muted-foreground">
-          Try adjusting your filters or search criteria.
-        </p>
+        <p className="text-muted-foreground">Try adjusting your filters or search criteria.</p>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      {jobs.map((job) => (
+      {jobs.map((job: any) => (
         <JobCard key={job.id} job={job} isPublic={isPublic} />
       ))}
 
       <div className="text-center py-4 text-sm text-muted-foreground">
-        {jobs.length} jobs found {hasMore && "(more available)"}
+        {jobs.length} jobs found
+        {/* {hasMore && "(more available)"} */}
       </div>
     </div>
   );

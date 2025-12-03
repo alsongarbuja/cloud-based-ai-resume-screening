@@ -5,13 +5,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { JobStatus } from './job.enum';
+import { JobStatus, JobType } from './job.enum';
 import { Industry } from 'src/industry/entities/industry.entity';
 
 @Entity()
@@ -39,6 +41,9 @@ export class Job {
   req: string;
 
   @Column()
+  location: string;
+
+  @Column()
   applyBy: Date;
 
   @Column({
@@ -48,13 +53,27 @@ export class Job {
   })
   status: JobStatus;
 
-  @Column()
+  @Column({ default: 0 })
   applicants: number;
+
+  @Column()
+  minSalary: number;
+
+  @Column()
+  maxSalary: number;
+
+  @Column({
+    type: 'enum',
+    enum: JobType,
+    default: JobType.FULL,
+  })
+  type: JobType;
 
   @OneToMany(() => Applied, (applied) => applied.jobId)
   appliers: Applied[];
 
-  @OneToMany(() => Company, (company) => company.jobs)
+  @ManyToOne(() => Company, (company) => company.jobs)
+  @JoinColumn({ name: 'createdBy' })
   createdBy: Company;
 
   @OneToOne(() => Result, (result) => result.job)

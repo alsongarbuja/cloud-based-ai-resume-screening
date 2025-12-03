@@ -1,23 +1,23 @@
 "use server";
 
-import { auth } from "@/lib/auth/config";
-import { updateUser, createCompany, createJobSeeker } from "@/lib/database/firestore";
+// import { auth } from "@/lib/auth/config";
+import { updateUser, createCompany, createJobSeeker, User } from "@/lib/database/firestore";
 
-export async function completeOnboarding(userType: "COMPANY" | "JOB_SEEKER") {
-  const session = await auth();
-  
-  if (!session?.user?.id) {
-    throw new Error("Not authenticated");
-  }
+export async function completeOnboarding(user: User) {
+  // const session = await auth();
 
-  if (session.user.onboardingComplete) {
-    throw new Error("Onboarding already completed");
-  }
+  // if (!session?.user?.id) {
+  //   throw new Error("Not authenticated");
+  // }
+
+  // if (session.user.onboardingComplete) {
+  //   throw new Error("Onboarding already completed");
+  // }
 
   try {
-    await updateUser(session.user.id, {
-      userType,
-      onboardingComplete: true,
+    await updateUser(user.id, {
+      type: user.type,
+      // onboardingComplete: true,
     });
 
     return { success: true };
@@ -27,19 +27,22 @@ export async function completeOnboarding(userType: "COMPANY" | "JOB_SEEKER") {
   }
 }
 
-export async function completeCompanyOnboarding(companyData: {
-  companyName: string;
-  location: string;
-  about: string;
-  website: string;
-  logo?: string;
-  xAccount?: string;
-}) {
-  const session = await auth();
-  
-  if (!session?.user?.id) {
-    throw new Error("Not authenticated");
-  }
+export async function completeCompanyOnboarding(
+  companyData: {
+    companyName: string;
+    location: string;
+    about: string;
+    website: string;
+    logo?: string;
+    xAccount?: string;
+  },
+  user: User
+) {
+  // const session = await auth();
+
+  // if (!session?.user?.id) {
+  //   throw new Error("Not authenticated");
+  // }
 
   try {
     const companyId = await createCompany({
@@ -49,16 +52,16 @@ export async function completeCompanyOnboarding(companyData: {
       website: companyData.website,
       logo: companyData.logo || "",
       xAccount: companyData.xAccount,
-      userId: session.user.id,
+      userId: user.id,
     });
 
-    await updateUser(session.user.id, {
-      email: session.user.email!,
-      name: session.user.name || companyData.companyName,
-      image: session.user.image || undefined,
-      userType: "COMPANY",
-      companyId: companyId,
-      onboardingComplete: true,
+    await updateUser(user.id, {
+      email: user.email!,
+      username: user.username || companyData.companyName,
+      profilePic: user.profilePic || undefined,
+      type: "ORG",
+      // companyId: companyId,
+      // onboardingComplete: true,
     });
 
     return { success: true, companyId: companyId };
@@ -68,32 +71,35 @@ export async function completeCompanyOnboarding(companyData: {
   }
 }
 
-export async function completeJobSeekerOnboarding(jobSeekerData: {
-  name: string;
-  about: string;
-  resume?: string;
-}) {
-  const session = await auth();
+export async function completeJobSeekerOnboarding(
+  jobSeekerData: {
+    name: string;
+    about: string;
+    resume?: string;
+  },
+  user: User
+) {
+  // const session = await auth();
 
-  if (!session?.user?.id) {
-    throw new Error("Not authenticated");
-  }
+  // if (!session?.user?.id) {
+  //   throw new Error("Not authenticated");
+  // }
 
   try {
     const jobSeekerId = await createJobSeeker({
       name: jobSeekerData.name,
       about: jobSeekerData.about,
       resume: jobSeekerData.resume || "",
-      userId: session.user.id,
+      userId: user.id,
     });
 
-    await updateUser(session.user.id, {
-      email: session.user.email!,
-      name: jobSeekerData.name,
-      image: session.user.image || undefined,
-      userType: "JOB_SEEKER",
-      jobSeekerId: jobSeekerId,
-      onboardingComplete: true,
+    await updateUser(user.id, {
+      email: user.email!,
+      username: jobSeekerData.name,
+      profilePic: user.profilePic,
+      type: "USER",
+      // jobSeekerId: jobSeekerId,
+      // onboardingComplete: true,
     });
 
     return { success: true, jobSeekerId: jobSeekerId };

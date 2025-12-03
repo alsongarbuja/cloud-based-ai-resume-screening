@@ -7,7 +7,6 @@ import { timestampToDate } from "./timestamp-utils";
 
 export { isAdminSdkAvailable };
 
-
 export const getUserByEmail = cache(async (email: string): Promise<User | null> => {
   if (!adminDb) return null;
 
@@ -43,7 +42,6 @@ export const getUserById = cache(async (id: string): Promise<User | null> => {
     emailVerified: data.emailVerified ? timestampToDate(data.emailVerified) : undefined,
   } as User;
 });
-
 
 export const getCompanyById = cache(async (id: string): Promise<Company | null> => {
   if (!adminDb) return null;
@@ -105,17 +103,16 @@ export const getJobSeekerByUserId = cache(async (userId: string): Promise<JobSee
   } as JobSeeker;
 });
 
-
 export const getJobs = cache(
   async (filters?: {
     employmentType?: string[];
-    timePosted?: string; 
+    timePosted?: string;
     page?: number;
     limit?: number;
   }): Promise<{ jobs: Job[]; hasMore: boolean }> => {
     console.log("🔍 Server getJobs called with filters:", JSON.stringify(filters, null, 2));
     console.log("🔍 Cache key:", JSON.stringify(filters));
-    
+
     if (!adminDb) return { jobs: [], hasMore: false };
 
     let query: FirebaseFirestore.Query = adminDb.collection("jobs");
@@ -130,7 +127,7 @@ export const getJobs = cache(
     if (filters?.timePosted && filters.timePosted !== "all") {
       const now = new Date();
       let cutoffDate: Date;
-      
+
       switch (filters.timePosted) {
         case "1h":
           cutoffDate = new Date(now.getTime() - 60 * 60 * 1000);
@@ -148,9 +145,9 @@ export const getJobs = cache(
           cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
           break;
         default:
-          cutoffDate = new Date(0); 
+          cutoffDate = new Date(0);
       }
-      
+
       console.log("⏰ Adding timePosted filter:", filters.timePosted, "cutoff:", cutoffDate);
       query = query.where("createdAt", ">=", Timestamp.fromDate(cutoffDate));
     }
@@ -164,22 +161,23 @@ export const getJobs = cache(
       snapshot = await query.get();
       console.log("📊 Query returned", snapshot.docs.length, "documents");
 
-      snapshot.docs.slice(0, 3).forEach(doc => {
+      snapshot.docs.slice(0, 3).forEach((doc) => {
         const data = doc.data();
-        console.log(`  - Job: "${data.jobTitle}" | Location: "${data.location}" | Status: "${data.status}"`);
+        console.log(
+          `  - Job: "${data.jobTitle}" | Location: "${data.location}" | Status: "${data.status}"`
+        );
       });
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "";
       if (errorMessage.includes("index") || errorMessage.includes("requires an index")) {
         console.log("⚠️  Firestore index required, falling back to client-side filtering");
 
-        let fallbackQuery = adminDb.collection("jobs")
-          .where("status", "==", "ACTIVE");
+        let fallbackQuery = adminDb.collection("jobs").where("status", "==", "ACTIVE");
 
         if (filters?.timePosted && filters.timePosted !== "all") {
           const now = new Date();
           let cutoffDate: Date;
-          
+
           switch (filters.timePosted) {
             case "1h":
               cutoffDate = new Date(now.getTime() - 60 * 60 * 1000);
@@ -199,18 +197,16 @@ export const getJobs = cache(
             default:
               cutoffDate = new Date(0);
           }
-          
+
           fallbackQuery = fallbackQuery.where("createdAt", ">=", Timestamp.fromDate(cutoffDate));
         }
-        
-        fallbackQuery = fallbackQuery
-          .orderBy("createdAt", "desc")
-          .limit((limitCount + 1) * 3); 
+
+        fallbackQuery = fallbackQuery.orderBy("createdAt", "desc").limit((limitCount + 1) * 3);
 
         snapshot = await fallbackQuery.get();
         console.log("📊 Fallback query returned", snapshot.docs.length, "documents");
       } else {
-        throw error; 
+        throw error;
       }
     }
 
@@ -256,22 +252,9 @@ export const getJobs = cache(
 );
 
 export const getJobById = cache(async (id: string): Promise<Job | null> => {
-  if (!adminDb) return null;
-
-  const doc = await adminDb.collection("jobs").doc(id).get();
-
-  if (!doc.exists) return null;
-
-  const data = doc.data()!;
-  const company = await getCompanyById(data.companyId);
-
-  return {
-    id: doc.id,
-    ...data,
-    createdAt: timestampToDate(data.createdAt),
-    updatedAt: timestampToDate(data.updatedAt),
-    company,
-  } as Job;
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jobs/${id}`);
+  const data = await res.json();
+  return data as Job;
 });
 
 export const getJobsByCompanyId = cache(async (companyId: string): Promise<Job[]> => {
@@ -293,7 +276,6 @@ export const getJobsByCompanyId = cache(async (companyId: string): Promise<Job[]
     } as Job;
   });
 });
-
 
 export const getSavedJobs = cache(async (userId: string): Promise<Job[]> => {
   if (!adminDb) return [];

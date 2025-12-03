@@ -1,5 +1,9 @@
-import { getJobById as getJobByIdClient } from "@/lib/database/firestore";
-import { getJobById as getJobByIdServer, isAdminSdkAvailable } from "@/lib/database/firestore-server";
+"use client";
+// import { getJobById as getJobByIdClient } from "@/lib/database/firestore";
+// import {
+//   getJobById as getJobByIdServer,
+//   isAdminSdkAvailable,
+// } from "@/lib/database/firestore-server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,26 +14,40 @@ import { formatCurrency } from "@/utils/format/currency";
 import { jobTypes } from "@/config/constants";
 import { getFlagEmoji } from "@/utils/countries";
 import { FormattedDate } from "@/components/ui/formatted-date";
-import type { Session } from "next-auth";
+import { useQuery } from "@tanstack/react-query";
+// import type { Session } from "next-auth";
 
 interface JobDetailContentProps {
-  id: string;
-  session: Session | null;
+  id: number;
+  token: string;
+  // session: Session | null;
 }
 
-export async function JobDetailContent({ id, session }: JobDetailContentProps) {
-  const job = isAdminSdkAvailable
-    ? await getJobByIdServer(id)
-    : await getJobByIdClient(id);
+export function JobDetailContent({ id, token }: JobDetailContentProps) {
+  // const job = isAdminSdkAvailable
+  //   ? await getJobByIdServer(id)
+  //   : await getJobByIdClient(id);
+  const { data } = useQuery({
+    queryKey: ["jobs", id],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jobs/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      return data;
+    },
+  });
+
+  const job = data;
 
   if (!job) {
     return (
       <div className="py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Job Not Found</h1>
-          <p className="text-muted-foreground mt-2">
-            The job you're looking for doesn't exist.
-          </p>
+          <p className="text-muted-foreground mt-2">The job you're looking for doesn't exist.</p>
           <Link href="/" className="mt-4 inline-block">
             <Button>Back to Jobs</Button>
           </Link>
@@ -54,46 +72,56 @@ export async function JobDetailContent({ id, session }: JobDetailContentProps) {
         <div className="space-y-8 col-1 md:col-span-2">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold">{job.jobTitle}</h1>
+              <h1 className="text-3xl font-bold">{job.title}</h1>
               <div className="flex items-center gap-2 mt-3">
                 <p className="font-medium">{job.company?.name}</p>
-                <span className="hidden md:inline text-muted-foreground">•</span>
                 <Badge className="rounded-full" variant="secondary">
-                  {jobTypes.find(
-                    (jobType) => jobType.value === job.employmentType
-                  )?.label || job.employmentType}
+                  {jobTypes.find((jobType) => jobType.value === job.type)?.label ||
+                    job.employmentType}
                 </Badge>
-                <span className="hidden md:inline text-muted-foreground">•</span>
-                <Badge className="rounded-full text-white">
+                <Badge className="rounded-full text-white" variant="outline">
                   {locationFlag && <span className="mr-1">{locationFlag}</span>}
                   {job.location}
                 </Badge>
               </div>
             </div>
 
-            {(!session || session.user.userType === "JOB_SEEKER") && (
-              session ? (
+            {false ? (
+              <Button variant="outline" className="shadow-none">
+                <Heart className="size-4" />
+                Save Job
+              </Button>
+            ) : (
+              <Link href={`/login?redirect=/job/${id}`}>
                 <Button variant="outline" className="shadow-none">
                   <Heart className="size-4" />
                   Save Job
                 </Button>
-              ) : (
-                <Link href={`/login?redirect=/job/${id}`}>
-                  <Button variant="outline" className="shadow-none">
-                    <Heart className="size-4" />
-                    Save Job
-                  </Button>
-                </Link>
-              )
+              </Link>
             )}
           </div>
 
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Job Description</h2>
             <div className="prose max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: job.jobDescription }} />
+              {job.desc}
+              {/* <div dangerouslySetInnerHTML={{ __html: job.desc }} /> */}
 
-              {job.benefits && job.benefits.length > 0 && (
+              <h3 className="text-lg font-semibold mt-4 mb-2">Responsibilites:</h3>
+              <ul className="list-disc pl-8">
+                {job.resp.split("\n").map((resp: string, index: number) => (
+                  <li key={index}>{resp}</li>
+                ))}
+              </ul>
+
+              <h3 className="text-lg font-semibold mt-4 mb-2">Requirements:</h3>
+              <ul className="list-disc pl-8">
+                {job.req.split("\n").map((req: string, index: number) => (
+                  <li key={index}>{req}</li>
+                ))}
+              </ul>
+
+              {/* {job.benefits && job.benefits.length > 0 && (
                 <>
                   <h3>Benefits:</h3>
                   <ul>
@@ -102,33 +130,29 @@ export async function JobDetailContent({ id, session }: JobDetailContentProps) {
                     ))}
                   </ul>
                 </>
-              )}
+              )} */}
             </div>
           </div>
         </div>
 
         <div className="space-y-6">
-          {(!session || session.user.userType === "JOB_SEEKER") && (
+          {false && (
             <Card className="shadow-none">
               <CardHeader>
                 <CardTitle>Apply for this position</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {session ? (
-                  <Button className="w-full">
-                    Apply Now
-                  </Button>
+                {false ? (
+                  <Button className="w-full">Apply Now</Button>
                 ) : (
                   <Link href={`/login?redirect=/job/${id}`} className="w-full">
-                    <Button className="w-full">
-                      Sign in to Apply
-                    </Button>
+                    <Button className="w-full">Sign in to Apply</Button>
                   </Link>
                 )}
                 <div className="text-sm text-muted-foreground space-y-2">
                   <div className="flex items-center gap-2">
                     <DollarSign className="h-4 w-4" />
-                    <span>{formatCurrency(job.salaryFrom, job.salaryTo)}</span>
+                    <span>{formatCurrency(job.minSalary, job.maxSalary)}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
@@ -136,14 +160,16 @@ export async function JobDetailContent({ id, session }: JobDetailContentProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    <span>Posted <FormattedDate date={job.createdAt} /></span>
+                    <span>
+                      Posted <FormattedDate date={job.createdAt} />
+                    </span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {session?.user.userType === "COMPANY" && session.user.companyId === job.companyId && (
+          {false && (
             <Card className="shadow-none">
               <CardHeader>
                 <CardTitle>Manage this job</CardTitle>
@@ -172,7 +198,7 @@ export async function JobDetailContent({ id, session }: JobDetailContentProps) {
               <div className="text-sm text-muted-foreground space-y-2">
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />
-                  <span>{formatCurrency(job.salaryFrom, job.salaryTo)}</span>
+                  <span>{formatCurrency(job.minSalary, job.maxSalary)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
@@ -180,13 +206,15 @@ export async function JobDetailContent({ id, session }: JobDetailContentProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  <span>Posted <FormattedDate date={job.createdAt} /></span>
+                  <span>
+                    Posted <FormattedDate date={new Date(job.createdAt)} />
+                  </span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {(!session || session.user.userType === "JOB_SEEKER") && (
+          {false && (
             <Card className="shadow-none">
               <CardHeader>
                 <CardTitle className="text-lg">About the Company</CardTitle>
@@ -209,12 +237,10 @@ export async function JobDetailContent({ id, session }: JobDetailContentProps) {
                     )}
                     <div className="space-y-2">
                       <h3 className="font-semibold">{job.company.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {job.company.about}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{job.company.desc}</p>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <MapPin className="h-4 w-4" />
-                        <span>{job.company.location}</span>
+                        <span>{job.company.address}</span>
                       </div>
                     </div>
                   </div>

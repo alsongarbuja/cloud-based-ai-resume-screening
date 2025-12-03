@@ -4,6 +4,7 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
 import { Repository } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class CompaniesService {
@@ -13,7 +14,15 @@ export class CompaniesService {
   ) {}
 
   create(createCompanyDto: CreateCompanyDto) {
-    return 'This action adds a new company';
+    const company = this.companyRepository.create({
+      ...createCompanyDto,
+      createdBy: { id: createCompanyDto.createdBy },
+    });
+    if (company.createdBy && company.createdBy.id) {
+      company.createdBy = { id: company.createdBy.id } as User;
+    }
+    const savedCompany = this.companyRepository.insert(company);
+    return savedCompany;
   }
 
   findAll() {
@@ -21,7 +30,11 @@ export class CompaniesService {
   }
 
   findOne(id: number) {
-    return this.companyRepository.findBy({ id });
+    return this.companyRepository.findOneBy({ id });
+  }
+
+  findWhere(createdBy: number) {
+    return this.companyRepository.findOneBy({ createdBy: { id: createdBy } });
   }
 
   update(id: number, updateCompanyDto: UpdateCompanyDto) {

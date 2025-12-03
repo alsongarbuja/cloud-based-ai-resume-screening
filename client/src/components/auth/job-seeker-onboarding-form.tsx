@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
 
 interface JobSeekerOnboardingFormProps {
-  onComplete: (jobSeekerData: JobSeekerFormData) => Promise<void>;
-  isLoading?: boolean;
+  token: string;
+  userId: number;
 }
 
 export interface JobSeekerFormData {
@@ -16,7 +17,19 @@ export interface JobSeekerFormData {
   about: string;
 }
 
-const JobSeekerOnboardingForm = ({ onComplete, isLoading = false }: JobSeekerOnboardingFormProps) => {
+const JobSeekerOnboardingForm = ({ token, userId }: JobSeekerOnboardingFormProps) => {
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["profile", "onboarding", "user"],
+    mutationFn: (jobseekerData: JobSeekerFormData) => {
+      return fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userId}`, {
+        method: "PATCH",
+        body: JSON.stringify(jobseekerData),
+        headers: {
+          Cookie: `${process.env.AUTH_COOKIE_TOKEN_NAME}=${token}`,
+        },
+      });
+    },
+  });
   const [formData, setFormData] = useState<JobSeekerFormData>({
     name: "",
     about: "",
@@ -43,7 +56,7 @@ const JobSeekerOnboardingForm = ({ onComplete, isLoading = false }: JobSeekerOnb
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast({
         title: "Validation Error",
@@ -54,7 +67,7 @@ const JobSeekerOnboardingForm = ({ onComplete, isLoading = false }: JobSeekerOnb
     }
 
     try {
-      await onComplete(formData);
+      await mutateAsync(formData);
     } catch (error) {
       console.error("Job seeker onboarding error:", error);
       toast({
@@ -66,15 +79,15 @@ const JobSeekerOnboardingForm = ({ onComplete, isLoading = false }: JobSeekerOnb
   };
 
   const handleInputChange = (field: keyof JobSeekerFormData, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: undefined
+        [field]: undefined,
       }));
     }
   };
@@ -96,11 +109,9 @@ const JobSeekerOnboardingForm = ({ onComplete, isLoading = false }: JobSeekerOnb
             value={formData.name}
             onChange={(e) => handleInputChange("name", e.target.value)}
             placeholder="Enter your full name"
-            disabled={isLoading}
+            disabled={isPending}
           />
-          {errors.name && (
-            <p className="text-sm text-destructive">{errors.name}</p>
-          )}
+          {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
         </div>
 
         <div className="space-y-2">
@@ -108,27 +119,22 @@ const JobSeekerOnboardingForm = ({ onComplete, isLoading = false }: JobSeekerOnb
           <textarea
             id="about"
             value={formData.about}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("about", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+              handleInputChange("about", e.target.value)
+            }
             placeholder="Tell us about your experience, skills, career goals, and what makes you unique as a candidate."
             rows={5}
-            disabled={isLoading}
+            disabled={isPending}
             className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           />
           <p className="text-xs text-muted-foreground">
             {formData.about.length}/50 characters minimum
           </p>
-          {errors.about && (
-            <p className="text-sm text-destructive">{errors.about}</p>
-          )}
+          {errors.about && <p className="text-sm text-destructive">{errors.about}</p>}
         </div>
 
-        <Button
-          type="submit"
-          disabled={isLoading}
-          className="w-full"
-          size="lg"
-        >
-          {isLoading ? "Setting up your profile..." : "Complete Profile Setup"}
+        <Button type="submit" disabled={isPending} className="w-full" size="lg">
+          {isPending ? "Setting up your profile..." : "Complete Profile Setup"}
         </Button>
       </form>
 

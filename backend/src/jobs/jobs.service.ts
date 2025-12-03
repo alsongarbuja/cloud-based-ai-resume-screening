@@ -12,20 +12,35 @@ export class JobsService {
     private jobRepository: Repository<Job>,
   ) {}
 
-  create(createJobDto: CreateJobDto) {
-    return 'This action adds a new job';
+  create(createJobDto: CreateJobDto, companyId: number) {
+    const job = this.jobRepository.create({
+      ...createJobDto,
+      createdBy: { id: companyId },
+    });
+    const savedJob = this.jobRepository.insert(job);
+    return savedJob;
   }
 
   findAll() {
-    return this.jobRepository.find();
+    return this.jobRepository.find({
+      relations: ['createdBy'],
+    });
   }
 
   findOne(id: number) {
-    return this.jobRepository.findBy({ id });
+    return this.jobRepository.findOneBy({ id });
   }
 
-  update(id: number, updateJobDto: UpdateJobDto) {
-    return `This action updates a #${id} job`;
+  async findWhere(companyId: number) {
+    const jobs = await this.jobRepository.findBy({
+      createdBy: { id: companyId },
+    });
+    return jobs;
+  }
+
+  async update(id: number, updateJobDto: UpdateJobDto) {
+    const job = await this.jobRepository.update({ id }, updateJobDto);
+    return job;
   }
 
   remove(id: number) {

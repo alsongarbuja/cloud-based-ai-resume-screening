@@ -6,7 +6,7 @@ import { Logo } from "../ui/logo";
 // import { auth } from "@/lib/auth/config";
 import UserDropdownWrapper from "./user-dropdown-wrapper";
 import { ROUTES } from "@/config/routes";
-import { User } from "@/types";
+import { User, UserType } from "@/types";
 
 const PublicNavbar = async ({ user }: { user?: User }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,7 +31,7 @@ const PublicNavbar = async ({ user }: { user?: User }) => {
       </div>
 
       <div className="flex items-center gap-3 md:gap-4">
-        {user && user.type === "ORG" && (
+        {user && user.type === "org" && (
           <Link
             className={buttonVariants({
               size: "lg",
@@ -44,7 +44,12 @@ const PublicNavbar = async ({ user }: { user?: User }) => {
         )}
 
         {user ? (
-          <UserDropdownWrapper email={user.email!} name={user.username!} image={user.profilePic!} />
+          <UserDropdownWrapper
+            email={user.email!}
+            name={user.username!}
+            image={user.profilePic!}
+            type={user.type! as UserType}
+          />
         ) : (
           <Link
             href={ROUTES.LOGIN}

@@ -1,9 +1,9 @@
-
 export const jobTypes = [
   { id: 1, value: "full-time", label: "Full Time" },
   { id: 2, value: "part-time", label: "Part Time" },
   { id: 3, value: "contract", label: "Contract" },
   { id: 4, value: "internship", label: "Internship" },
+  { id: 5, value: "temporary", label: "Temporary" },
 ];
 
 export const locations = [
@@ -26,7 +26,6 @@ export const locations = [
   "Remote",
 ];
 
-
 export const timeFilterOptions = [
   { id: 1, value: "all", label: "All Time" },
   { id: 2, value: "1h", label: "Last Hour" },
@@ -35,7 +34,6 @@ export const timeFilterOptions = [
   { id: 5, value: "30d", label: "Last 30 Days" },
   { id: 6, value: "90d", label: "Last 90 Days" },
 ];
-
 
 export const TOKEN_REFRESH_THRESHOLD_MS = 30 * 1000;
 
@@ -60,14 +58,14 @@ export const PAGINATION = {
 export const CACHE = {
   FIRESTORE_SIZE_BYTES: 40 * 1024 * 1024,
 
-  QUERY_STALE_TIME: 2 * 60 * 1000, 
-  QUERY_GC_TIME: 5 * 60 * 1000, 
+  QUERY_STALE_TIME: 2 * 60 * 1000,
+  QUERY_GC_TIME: 5 * 60 * 1000,
 } as const;
 
 export const FILE_LIMITS = {
-  MAX_RESUME_SIZE: 5 * 1024 * 1024, 
-  MAX_IMAGE_SIZE: 2 * 1024 * 1024, 
-  MAX_LOGO_SIZE: 2 * 1024 * 1024, 
+  MAX_RESUME_SIZE: 5 * 1024 * 1024,
+  MAX_IMAGE_SIZE: 2 * 1024 * 1024,
+  MAX_LOGO_SIZE: 2 * 1024 * 1024,
 } as const;
 
 export const VALIDATION = {
@@ -118,13 +116,12 @@ export const HTTP_STATUS = {
 } as const;
 
 export const LOG_LEVELS = {
-  ERROR: 'error',
-  WARN: 'warn',
-  INFO: 'info',
-  DEBUG: 'debug',
+  ERROR: "error",
+  WARN: "warn",
+  INFO: "info",
+  DEBUG: "debug",
 } as const;
 
-export type LogLevel = typeof LOG_LEVELS[keyof typeof LOG_LEVELS];
-
+export type LogLevel = (typeof LOG_LEVELS)[keyof typeof LOG_LEVELS];
 
 export const REDIRECT_DELAY_MS = 1500;

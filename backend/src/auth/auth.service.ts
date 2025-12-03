@@ -11,14 +11,12 @@ export class AuthService {
   ) {}
 
   async validateUser(user: Partial<User>): Promise<Partial<User>> {
-    const userData = await this.userService.validateUser(user.email!);
+    let userData = await this.userService.validateUser(user.email!);
     if (!userData) {
-      await this.userService.create(user as User);
+      userData = await this.userService.create(user as User);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return result;
+    return userData;
   }
 
   async generateToken(user: User): Promise<string | null> {

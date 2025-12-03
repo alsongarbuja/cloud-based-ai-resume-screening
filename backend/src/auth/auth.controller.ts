@@ -26,10 +26,15 @@ export class AuthController {
   @Get('google/redirect')
   @UseGuards(GoogleOAuthGuard)
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
-    const user = req.user;
-    const redirectTo = req.query.redirectTo as string;
+    const user = req.user as User & { redirectTo: string };
+    const u = await this.authService.validateUser({
+      email: user.email,
+      username: user.username,
+      type: user.type,
+      profilePic: user.profilePic,
+    });
 
-    const token = await this.authService.generateToken(user as User);
+    const token = await this.authService.generateToken(u as User);
 
     if (token) {
       res.cookie('auth-token', token, {
@@ -41,7 +46,7 @@ export class AuthController {
       });
 
       res.redirect(
-        `${this.configService.get<string>('client.url')}/auth/callback?redirect=${redirectTo || '/'}`,
+        `${this.configService.get<string>('client.url')}/auth/callback?redirect=${user.redirectTo || '/'}`,
       );
     }
   }

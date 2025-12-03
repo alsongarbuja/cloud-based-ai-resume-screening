@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -27,19 +28,20 @@ export class Company {
   @Column()
   website: string;
 
-  @Column()
+  @Column({ nullable: true })
   linkedin: string;
 
-  @Column()
+  @Column({ nullable: true })
   xLink: string;
 
-  @Column()
+  @Column({ nullable: true })
   logo: string;
 
   @OneToMany(() => Job, (job) => job.createdBy)
   jobs: Job[];
 
   @OneToOne(() => User, (user) => user.company)
+  @JoinColumn({ name: 'createdBy' })
   createdBy: User;
 
   @CreateDateColumn()

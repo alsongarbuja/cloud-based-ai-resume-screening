@@ -8,7 +8,13 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -17,28 +23,42 @@ import { jobTypes, locations } from "@/config/constants";
 import { ROUTES } from "@/config/routes";
 
 const jobSchema = z.object({
-  jobTitle: z.string().min(1, "Job title is required").max(200, "Job title is too long"),
-  jobDescription: z.string().min(10, "Job description must be at least 10 characters").max(5000, "Job description is too long"),
+  title: z.string().min(1, "Job title is required").max(200, "Job title is too long"),
+  desc: z
+    .string()
+    .min(10, "Job description must be at least 10 characters")
+    .max(5000, "Job description is too long"),
   location: z.string().min(1, "Location is required"),
-  employmentType: z.string().min(1, "Employment type is required"),
-  salaryFrom: z.number().min(0, "Minimum salary cannot be negative").max(10000000, "Minimum salary is too high"),
-  salaryTo: z.number().min(0, "Maximum salary cannot be negative").max(10000000, "Maximum salary is too high"),
-  listingDuration: z.number().min(1, "Duration must be at least 1 day").max(365, "Duration cannot exceed 365 days"),
-  status: z.enum(["DRAFT", "ACTIVE"]),
-  benefits: z.array(z.string()).optional(),
-}).refine((data) => data.salaryTo >= data.salaryFrom, {
-  message: "Maximum salary must be greater than or equal to minimum salary",
-  path: ["salaryTo"],
+  type: z.string().min(1, "Employment type is required"),
+  minSalary: z
+    .number()
+    .min(0, "Minimum salary cannot be negative")
+    .max(10000000, "Minimum salary is too high"),
+  maxSalary: z
+    .number()
+    .min(0, "Maximum salary cannot be negative")
+    .max(10000000, "Maximum salary is too high"),
+  applyBy: z.number().min(1, "Duration must be at least 1 day"),
+  // .max(365, "Duration cannot exceed 365 days"),
+  // status: z.enum(["DRAFT", "ACTIVE"]),
+  resp: z.array(z.string()).optional(),
+  req: z.array(z.string()).optional(),
 });
+// .refine((data) => data.minSalary >= data.maxSalary, {
+//   message: "Maximum salary must be greater than or equal to minimum salary",
+//   path: ["maxSalary"],
+// });
 
 type JobFormData = z.infer<typeof jobSchema>;
 
-export default function JobPostingForm() {
+export default function JobPostingForm({ token }: { token: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [benefits, setBenefits] = useState<string[]>([]);
-  const [currentBenefit, setCurrentBenefit] = useState("");
+  const [resps, setResps] = useState<string[]>([]);
+  const [currentResp, setCurrentResp] = useState("");
+  const [reqs, setReqs] = useState<string[]>([]);
+  const [currentReq, setCurrentReq] = useState("");
 
   const {
     register,
@@ -49,38 +69,63 @@ export default function JobPostingForm() {
   } = useForm<JobFormData>({
     resolver: zodResolver(jobSchema),
     defaultValues: {
-      status: "ACTIVE",
-      listingDuration: 30,
+      // status: "ACTIVE",
+      applyBy: 30,
     },
   });
 
-  const addBenefit = () => {
-    if (currentBenefit.trim() && !benefits.includes(currentBenefit.trim())) {
-      const newBenefits = [...benefits, currentBenefit.trim()];
-      setBenefits(newBenefits);
-      setValue("benefits", newBenefits);
-      setCurrentBenefit("");
+  const addResp = () => {
+    if (currentResp.trim() && !resps.includes(currentResp.trim())) {
+      const newResps = [...resps, currentResp.trim()];
+      setResps(newResps);
+      setValue("resp", newResps);
+      setCurrentResp("");
     }
   };
 
-  const removeBenefit = (benefit: string) => {
-    const newBenefits = benefits.filter((b) => b !== benefit);
-    setBenefits(newBenefits);
-    setValue("benefits", newBenefits);
+  const removeResp = (resp: string) => {
+    const newResps = resps.filter((b) => b !== resp);
+    setResps(newResps);
+    setValue("resp", newResps);
+  };
+
+  const addReq = () => {
+    if (currentReq.trim() && !reqs.includes(currentReq.trim())) {
+      const newReqs = [...reqs, currentReq.trim()];
+      setReqs(newReqs);
+      setValue("req", newReqs);
+      setCurrentReq("");
+    }
+  };
+
+  const removeReq = (req: string) => {
+    const newReqs = reqs.filter((b) => b !== req);
+    setReqs(newReqs);
+    setValue("req", newReqs);
   };
 
   const onSubmit = async (data: JobFormData) => {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch("/api/jobs", {
+      const currentDate = new Date();
+      const currentDay = currentDate.getDate();
+      currentDate.setDate(currentDay + data.applyBy);
+
+      const responsibilities = data.resp?.join("\n");
+      const requriements = data.req?.join("\n");
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jobs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           ...data,
-          benefits,
+          applyBy: currentDate,
+          resp: responsibilities,
+          req: requriements,
         }),
       });
 
@@ -135,29 +180,25 @@ export default function JobPostingForm() {
             <Label htmlFor="jobTitle">Job Title *</Label>
             <Input
               id="jobTitle"
-              {...register("jobTitle")}
+              {...register("title")}
               placeholder="e.g., Senior Software Engineer"
-              className={errors.jobTitle ? "border-destructive" : ""}
+              className={errors.title ? "border-destructive" : ""}
             />
-            {errors.jobTitle && (
-              <p className="text-sm text-destructive">{errors.jobTitle.message}</p>
-            )}
+            {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="jobDescription">Job Description *</Label>
             <textarea
               id="jobDescription"
-              {...register("jobDescription")}
+              {...register("desc")}
               rows={6}
               className={`flex min-h-[120px] w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                errors.jobDescription ? "border-destructive" : "border-input"
+                errors.desc ? "border-destructive" : "border-input"
               }`}
               placeholder="Describe the role, responsibilities, and requirements..."
             />
-            {errors.jobDescription && (
-              <p className="text-sm text-destructive">{errors.jobDescription.message}</p>
-            )}
+            {errors.desc && <p className="text-sm text-destructive">{errors.desc.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -184,10 +225,7 @@ export default function JobPostingForm() {
 
           <div className="space-y-2">
             <Label htmlFor="employmentType">Employment Type *</Label>
-            <Select
-              value={watch("employmentType")}
-              onValueChange={(value) => setValue("employmentType", value)}
-            >
+            <Select value={watch("type")} onValueChange={(value) => setValue("type", value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select employment type" />
               </SelectTrigger>
@@ -199,9 +237,7 @@ export default function JobPostingForm() {
                 ))}
               </SelectContent>
             </Select>
-            {errors.employmentType && (
-              <p className="text-sm text-destructive">{errors.employmentType.message}</p>
-            )}
+            {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
           </div>
 
           <div className="space-y-3">
@@ -215,13 +251,13 @@ export default function JobPostingForm() {
                   id="salaryFrom"
                   type="number"
                   min="0"
-                  step="1000"
-                  {...register("salaryFrom", { valueAsNumber: true })}
+                  // step="1000"
+                  {...register("minSalary", { valueAsNumber: true })}
                   placeholder="e.g., 80000"
-                  className={errors.salaryFrom ? "border-destructive" : ""}
+                  className={errors.minSalary ? "border-destructive" : ""}
                 />
-                {errors.salaryFrom && (
-                  <p className="text-sm text-destructive">{errors.salaryFrom.message}</p>
+                {errors.minSalary && (
+                  <p className="text-sm text-destructive">{errors.minSalary.message}</p>
                 )}
               </div>
 
@@ -233,18 +269,19 @@ export default function JobPostingForm() {
                   id="salaryTo"
                   type="number"
                   min="0"
-                  step="1000"
-                  {...register("salaryTo", { valueAsNumber: true })}
+                  // step="1000"
+                  {...register("maxSalary", { valueAsNumber: true })}
                   placeholder="e.g., 120000"
-                  className={errors.salaryTo ? "border-destructive" : ""}
+                  className={errors.maxSalary ? "border-destructive" : ""}
                 />
-                {errors.salaryTo && (
-                  <p className="text-sm text-destructive">{errors.salaryTo.message}</p>
+                {errors.maxSalary && (
+                  <p className="text-sm text-destructive">{errors.maxSalary.message}</p>
                 )}
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
-              Enter the annual salary range for this position. Maximum must be greater than or equal to minimum.
+              Enter the annual salary range for this position. Maximum must be greater than or equal
+              to minimum.
             </p>
           </div>
 
@@ -255,49 +292,87 @@ export default function JobPostingForm() {
               type="number"
               min="1"
               max="365"
-              {...register("listingDuration", { valueAsNumber: true })}
+              {...register("applyBy", { valueAsNumber: true })}
               placeholder="e.g., 30"
-              className={errors.listingDuration ? "border-destructive" : ""}
+              className={errors.applyBy ? "border-destructive" : ""}
             />
-            {errors.listingDuration && (
-              <p className="text-sm text-destructive">{errors.listingDuration.message}</p>
-            )}
+            {errors.applyBy && <p className="text-sm text-destructive">{errors.applyBy.message}</p>}
             <p className="text-xs text-muted-foreground">
               How many days should this job listing remain active? (1-365 days)
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="benefits">Benefits</Label>
+            <Label htmlFor="responsibilites">Responsibilites</Label>
             <div className="flex gap-2">
               <Input
-                id="benefits"
-                value={currentBenefit}
-                onChange={(e) => setCurrentBenefit(e.target.value)}
-                placeholder="Add a benefit"
+                id="responsibilites"
+                value={currentResp}
+                onChange={(e) => setCurrentResp(e.target.value)}
+                placeholder="Add a resp"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    addBenefit();
+                    addResp();
                   }
                 }}
               />
-              <Button type="button" onClick={addBenefit} variant="outline">
+              <Button type="button" onClick={addResp} variant="outline">
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
 
-            {benefits.length > 0 && (
+            {resps.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
-                {benefits.map((benefit) => (
-                  <Badge key={benefit} variant="secondary" className="flex items-center gap-1">
-                    {benefit}
+                {resps.map((resp) => (
+                  <Badge key={resp} variant="secondary" className="flex items-center gap-1">
+                    {resp}
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       className="h-auto p-0 hover:bg-transparent"
-                      onClick={() => removeBenefit(benefit)}
+                      onClick={() => removeResp(resp)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="requirements">Requirements</Label>
+            <div className="flex gap-2">
+              <Input
+                id="requirements"
+                value={currentReq}
+                onChange={(e) => setCurrentReq(e.target.value)}
+                placeholder="Add a req"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addReq();
+                  }
+                }}
+              />
+              <Button type="button" onClick={addReq} variant="outline">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {reqs.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {reqs.map((req) => (
+                  <Badge key={req} variant="secondary" className="flex items-center gap-1">
+                    {req}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 hover:bg-transparent"
+                      onClick={() => removeReq(req)}
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -310,7 +385,7 @@ export default function JobPostingForm() {
       </Card>
 
       <div className="flex gap-4">
-        <Button
+        {/* <Button
           type="button"
           variant="outline"
           onClick={() => {
@@ -320,11 +395,11 @@ export default function JobPostingForm() {
           disabled={isSubmitting}
         >
           Save as Draft
-        </Button>
+        </Button> */}
 
         <Button
           type="submit"
-          onClick={() => setValue("status", "ACTIVE")}
+          // onClick={() => setValue("status", "ACTIVE")}
           disabled={isSubmitting}
           className="flex-1"
         >

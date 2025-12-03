@@ -21,7 +21,7 @@ const JobCard = memo<JobCardProps>(({ job }) => {
   const jobRoute = getDynamicRoute.job(job.id);
   const href = jobRoute;
 
-  if (!job.company) {
+  if (!job.createdBy) {
     return null;
   }
 
@@ -31,11 +31,11 @@ const JobCard = memo<JobCardProps>(({ job }) => {
         <CardHeader className="p-5 md:p-6">
           <div className="flex flex-col md:flex-row gap-4 md:gap-5">
             <div className="flex gap-3 md:block">
-              {job.company.logo ? (
+              {job.createdBy.logo ? (
                 <div className="relative">
                   <Image
-                    src={job.company.logo}
-                    alt={job.company.name}
+                    src={job.createdBy.logo}
+                    alt={job.createdBy.name}
                     width={56}
                     height={56}
                     className="rounded-xl size-14 object-cover ring-1 ring-border/50 group-hover:ring-primary/50 transition-all duration-300"
@@ -44,29 +44,25 @@ const JobCard = memo<JobCardProps>(({ job }) => {
               ) : (
                 <div className="size-14 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl flex items-center justify-center ring-1 ring-border/50 group-hover:ring-primary/50 transition-all duration-300">
                   <span className="text-xl font-bold text-primary">
-                    {job.company.name.charAt(0)}
+                    {job.createdBy.name.charAt(0)}
                   </span>
                 </div>
               )}
 
               <div className="md:hidden flex-1">
                 <h3 className="font-semibold text-lg leading-tight mb-1.5 group-hover:text-primary transition-colors">
-                  {job.jobTitle}
+                  {job.title}
                 </h3>
-                <p className="text-sm text-muted-foreground font-medium">
-                  {job.company.name}
-                </p>
+                <p className="text-sm text-muted-foreground font-medium">{job.createdBy.name}</p>
               </div>
             </div>
 
             <div className="flex-1 space-y-3">
               <div className="hidden md:block">
                 <h3 className="font-semibold text-xl leading-tight mb-1.5 group-hover:text-primary transition-colors">
-                  {job.jobTitle}
+                  {job.title}
                 </h3>
-                <p className="text-sm text-muted-foreground font-medium">
-                  {job.company.name}
-                </p>
+                <p className="text-sm text-muted-foreground font-medium">{job.createdBy.name}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
@@ -77,30 +73,24 @@ const JobCard = memo<JobCardProps>(({ job }) => {
 
                 <div className="flex items-center gap-1.5">
                   <User2 className="size-4 flex-shrink-0" />
-                  <span>
-                    {jobTypes.find(
-                      (type) => type.value === job.employmentType
-                    )?.label || job.employmentType}
-                  </span>
+                  <span>{jobTypes.find((type) => type.value === job.type)?.label || job.type}</span>
                 </div>
 
                 <div className="flex items-center gap-1.5">
                   <Clock className="size-4 flex-shrink-0" />
-                  <RelativeTime date={job.createdAt} />
+                  <RelativeTime date={new Date(job.createdAt)} />
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <div className="font-bold text-xl text-foreground">
-                  {formatCurrency(job.salaryFrom, job.salaryTo)}
+                  {formatCurrency(job.minSalary, job.maxSalary)}
                 </div>
                 <Badge
                   variant="secondary"
                   className="rounded-full text-xs font-semibold px-4 py-1.5 bg-primary/10 text-primary border border-primary/20"
                 >
-                  {jobTypes.find(
-                    (type) => type.value === job.employmentType
-                  )?.label || job.employmentType}
+                  {jobTypes.find((type) => type.value === job.type)?.label || job.type}
                 </Badge>
               </div>
             </div>

@@ -51,7 +51,7 @@ const UserDropdown = ({ email, name, image, userType }: UserInfoProps) => {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {userType === "JOB_SEEKER" && (
+          {userType === "user" && (
             <>
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={ROUTES.FAVORITES}>
@@ -68,7 +68,7 @@ const UserDropdown = ({ email, name, image, userType }: UserInfoProps) => {
             </>
           )}
 
-          {userType === "COMPANY" && (
+          {userType === "org" && (
             <>
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={ROUTES.MY_JOBS}>

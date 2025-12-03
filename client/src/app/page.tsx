@@ -230,21 +230,21 @@ export default async function PublicJobListings({ searchParams }: SearchParams) 
 
           <div className="lg:col-span-2 flex flex-col gap-6">
             <Suspense fallback={<JobListingLoading />} key={filterKey}>
-              {isAdminSdkAvailable ? (
+              {/* {isAdminSdkAvailable ? (
                 <JobListingServer
                   currentPage={currentPage}
                   jobTypes={jobTypes}
                   timePosted={timePosted}
                   isPublic={true}
                 />
-              ) : (
-                <JobListing
-                  currentPage={currentPage}
-                  jobTypes={jobTypes}
-                  timePosted={timePosted}
-                  isPublic={true}
-                />
-              )}
+              ) : ( */}
+              <JobListing
+                currentPage={currentPage}
+                jobTypes={jobTypes}
+                timePosted={timePosted}
+                isPublic={true}
+              />
+              {/* )} */}
             </Suspense>
           </div>
         </div>

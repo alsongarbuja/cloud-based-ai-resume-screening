@@ -6,28 +6,48 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { isValidUrl, isValidTwitterHandle } from "@/utils/validation";
-
-interface CompanyOnboardingFormProps {
-  onComplete: (companyData: CompanyFormData) => Promise<void>;
-  isLoading?: boolean;
-}
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 export interface CompanyFormData {
-  companyName: string;
-  location: string;
-  about: string;
+  name: string;
+  desc: string;
+  address: string;
   website: string;
-  logo?: string;
-  xAccount?: string;
+  linkedin: string;
+  xLink?: string;
+  logo: string;
 }
 
-const CompanyOnboardingForm = ({ onComplete, isLoading }: CompanyOnboardingFormProps) => {
+const CompanyOnboardingForm = ({ token }: { token: string }) => {
+  const router = useRouter();
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["profile", "onboarding", "company"],
+    mutationFn: (companyData: CompanyFormData) => {
+      return fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/companies`, {
+        method: "POST",
+        body: JSON.stringify(companyData),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onSuccess: () => {
+      router.push("/");
+    },
+    onError: (err) => {
+      console.error(err);
+    },
+  });
   const [formData, setFormData] = useState<CompanyFormData>({
-    companyName: "",
-    location: "",
-    about: "",
+    name: "",
+    address: "",
+    desc: "",
     website: "",
-    xAccount: "",
+    linkedin: "",
+    logo: "",
+    xLink: "",
   });
   const [errors, setErrors] = useState<Partial<CompanyFormData>>({});
   const { toast } = useToast();
@@ -35,18 +55,18 @@ const CompanyOnboardingForm = ({ onComplete, isLoading }: CompanyOnboardingFormP
   const validateForm = (): boolean => {
     const newErrors: Partial<CompanyFormData> = {};
 
-    if (!formData.companyName.trim()) {
-      newErrors.companyName = "Company name is required";
+    if (!formData.name.trim()) {
+      newErrors.name = "Company name is required";
     }
 
-    if (!formData.location.trim()) {
-      newErrors.location = "Location is required";
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required";
     }
 
-    if (!formData.about.trim()) {
-      newErrors.about = "Company description is required";
-    } else if (formData.about.trim().length < 50) {
-      newErrors.about = "Company description must be at least 50 characters";
+    if (!formData.desc.trim()) {
+      newErrors.desc = "Company description is required";
+    } else if (formData.desc.trim().length < 50) {
+      newErrors.desc = "Company description must be at least 50 characters";
     }
 
     if (!formData.website.trim()) {
@@ -55,8 +75,8 @@ const CompanyOnboardingForm = ({ onComplete, isLoading }: CompanyOnboardingFormP
       newErrors.website = "Please enter a valid website URL";
     }
 
-    if (formData.xAccount && !isValidTwitterHandle(formData.xAccount)) {
-      newErrors.xAccount = "Please enter a valid X (Twitter) handle";
+    if (formData.xLink && !isValidTwitterHandle(formData.xLink)) {
+      newErrors.xLink = "Please enter a valid X (Twitter) handle";
     }
 
     setErrors(newErrors);
@@ -65,7 +85,7 @@ const CompanyOnboardingForm = ({ onComplete, isLoading }: CompanyOnboardingFormP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast({
         title: "Validation Error",
@@ -76,21 +96,24 @@ const CompanyOnboardingForm = ({ onComplete, isLoading }: CompanyOnboardingFormP
     }
 
     try {
-      const normalizedWebsite = formData.website.startsWith('http')
+      const normalizedWebsite = formData.website.startsWith("http")
         ? formData.website
         : `https://${formData.website}`;
 
-      const normalizedXAccount = formData.xAccount
-        ? formData.xAccount.startsWith('@')
-          ? formData.xAccount
-          : `@${formData.xAccount}`
+      const normalizedXAccount = formData.xLink
+        ? formData.xLink.startsWith("@")
+          ? formData.xLink
+          : `@${formData.xLink}`
         : undefined;
 
-      await onComplete({
+      const cData = {
         ...formData,
         website: normalizedWebsite,
-        xAccount: normalizedXAccount,
-      });
+        xLink: normalizedXAccount,
+      };
+      console.log(cData);
+
+      await mutateAsync(cData);
     } catch (error) {
       console.error("Company onboarding error:", error);
       toast({
@@ -102,15 +125,15 @@ const CompanyOnboardingForm = ({ onComplete, isLoading }: CompanyOnboardingFormP
   };
 
   const handleInputChange = (field: keyof CompanyFormData, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: undefined
+        [field]: undefined,
       }));
     }
   };
@@ -126,31 +149,27 @@ const CompanyOnboardingForm = ({ onComplete, isLoading }: CompanyOnboardingFormP
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="companyName">Company Name *</Label>
+          <Label htmlFor="name">Company Name *</Label>
           <Input
-            id="companyName"
-            value={formData.companyName}
-            onChange={(e) => handleInputChange("companyName", e.target.value)}
+            id="name"
+            value={formData.name}
+            onChange={(e) => handleInputChange("name", e.target.value)}
             placeholder="Enter your company name"
-            disabled={isLoading}
+            disabled={isPending}
           />
-          {errors.companyName && (
-            <p className="text-sm text-destructive">{errors.companyName}</p>
-          )}
+          {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="location">Location *</Label>
+          <Label htmlFor="address">Address *</Label>
           <Input
-            id="location"
-            value={formData.location}
-            onChange={(e) => handleInputChange("location", e.target.value)}
+            id="address"
+            value={formData.address}
+            onChange={(e) => handleInputChange("address", e.target.value)}
             placeholder="e.g., San Francisco, CA"
-            disabled={isLoading}
+            disabled={isPending}
           />
-          {errors.location && (
-            <p className="text-sm text-destructive">{errors.location}</p>
-          )}
+          {errors.address && <p className="text-sm text-destructive">{errors.address}</p>}
         </div>
 
         <div className="space-y-2">
@@ -160,53 +179,44 @@ const CompanyOnboardingForm = ({ onComplete, isLoading }: CompanyOnboardingFormP
             value={formData.website}
             onChange={(e) => handleInputChange("website", e.target.value)}
             placeholder="www.yourcompany.com"
-            disabled={isLoading}
+            disabled={isPending}
           />
-          {errors.website && (
-            <p className="text-sm text-destructive">{errors.website}</p>
-          )}
+          {errors.website && <p className="text-sm text-destructive">{errors.website}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="xAccount">X (Twitter) Handle (Optional)</Label>
           <Input
             id="xAccount"
-            value={formData.xAccount}
-            onChange={(e) => handleInputChange("xAccount", e.target.value)}
+            value={formData.xLink}
+            onChange={(e) => handleInputChange("xLink", e.target.value)}
             placeholder="@yourcompany"
-            disabled={isLoading}
+            disabled={isPending}
           />
-          {errors.xAccount && (
-            <p className="text-sm text-destructive">{errors.xAccount}</p>
-          )}
+          {errors.xLink && <p className="text-sm text-destructive">{errors.xLink}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="about">Company Description *</Label>
           <textarea
             id="about"
-            value={formData.about}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("about", e.target.value)}
+            value={formData.desc}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+              handleInputChange("desc", e.target.value)
+            }
             placeholder="Tell us about your company, what you do, your mission, culture, etc."
             rows={4}
-            disabled={isLoading}
+            disabled={isPending}
             className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           />
           <p className="text-xs text-muted-foreground">
-            {formData.about.length}/50 characters minimum
+            {formData.desc.length}/50 characters minimum
           </p>
-          {errors.about && (
-            <p className="text-sm text-destructive">{errors.about}</p>
-          )}
+          {errors.desc && <p className="text-sm text-destructive">{errors.desc}</p>}
         </div>
 
-        <Button
-          type="submit"
-          disabled={isLoading}
-          className="w-full"
-          size="lg"
-        >
-          {isLoading ? "Setting up your company..." : "Complete Company Setup"}
+        <Button type="submit" disabled={isPending} className="w-full" size="lg">
+          {isPending ? "Setting up your company..." : "Complete Company Setup"}
         </Button>
       </form>
     </div>
