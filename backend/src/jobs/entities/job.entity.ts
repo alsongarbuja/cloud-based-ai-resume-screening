@@ -25,8 +25,9 @@ export class Job {
   @Column()
   desc: string;
 
-  @Column('text', { array: true })
-  tags: string[];
+  // TODO: fix this
+  // @Column('text', { array: true })
+  // tags: string[];
 
   @ManyToMany(() => Industry, (industry) => industry.jobs)
   industries: Industry[];

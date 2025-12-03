@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserType } from './user.enum';
 
 @Entity()
 export class User {
@@ -22,8 +23,17 @@ export class User {
   @Column()
   email: string;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: UserType,
+    default: UserType.USER,
+  })
   type: string;
+
+  @Column({
+    nullable: true,
+  })
+  password: string;
 
   @Column()
   profilePic: string;

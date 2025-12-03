@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { AppliedService } from './applied.service';
 import { CreateAppliedDto } from './dto/create-applied.dto';
 import { UpdateAppliedDto } from './dto/update-applied.dto';
@@ -9,7 +17,7 @@ export class AppliedController {
 
   @Post()
   create(@Body() createAppliedDto: CreateAppliedDto) {
-    return this.appliedService.create(createAppliedDto);
+    return this.appliedService.create();
   }
 
   @Get()
