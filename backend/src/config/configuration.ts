@@ -14,6 +14,12 @@ export default () => ({
     jwtSecret: process.env.JWT_SECRET,
     domain: process.env.DOMAIN,
   },
+  aws: {
+    bucketName: process.env.AWS_BUCKET_NAME,
+    region: process.env.AWS_REGION,
+    accessId: process.env.AWS_ACCESS_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
   client: {
     url: process.env.CLIENT_URL,
   },

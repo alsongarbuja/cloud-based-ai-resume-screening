@@ -4,7 +4,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -22,10 +23,15 @@ export class Applied {
   })
   status: AppliedStatus;
 
-  @OneToMany(() => User, (user) => user.appliedJobs)
+  @Column()
+  usedResume: string;
+
+  @ManyToOne(() => User, (user) => user.appliedJobs)
+  @JoinColumn({ name: 'userId' })
   userId: User;
 
-  @OneToMany(() => Job, (job) => job.appliers)
+  @ManyToOne(() => Job, (job) => job.appliers)
+  @JoinColumn({ name: 'jobId' })
   jobId: Job;
 
   @CreateDateColumn()

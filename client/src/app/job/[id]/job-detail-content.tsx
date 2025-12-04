@@ -1,9 +1,4 @@
 "use client";
-// import { getJobById as getJobByIdClient } from "@/lib/database/firestore";
-// import {
-//   getJobById as getJobByIdServer,
-//   isAdminSdkAvailable,
-// } from "@/lib/database/firestore-server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,19 +9,17 @@ import { formatCurrency } from "@/utils/format/currency";
 import { jobTypes } from "@/config/constants";
 import { getFlagEmoji } from "@/utils/countries";
 import { FormattedDate } from "@/components/ui/formatted-date";
-import { useQuery } from "@tanstack/react-query";
-// import type { Session } from "next-auth";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { User } from "@/types";
+import { redirect } from "next/navigation";
 
 interface JobDetailContentProps {
   id: number;
   token: string;
-  // session: Session | null;
+  user: User | null;
 }
 
-export function JobDetailContent({ id, token }: JobDetailContentProps) {
-  // const job = isAdminSdkAvailable
-  //   ? await getJobByIdServer(id)
-  //   : await getJobByIdClient(id);
+export function JobDetailContent({ id, token, user }: JobDetailContentProps) {
   const { data } = useQuery({
     queryKey: ["jobs", id],
     queryFn: async () => {
@@ -39,8 +32,26 @@ export function JobDetailContent({ id, token }: JobDetailContentProps) {
       return data;
     },
   });
-
   const job = data;
+
+  const { mutateAsync } = useMutation({
+    mutationKey: ["applied"],
+    mutationFn: async (data: { userId: number; jobId: number }) => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/applied`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const d = await res.json();
+      return d;
+    },
+    onSuccess: () => {
+      redirect("/my-applications");
+    },
+  });
 
   if (!job) {
     return (
@@ -120,35 +131,34 @@ export function JobDetailContent({ id, token }: JobDetailContentProps) {
                   <li key={index}>{req}</li>
                 ))}
               </ul>
-
-              {/* {job.benefits && job.benefits.length > 0 && (
-                <>
-                  <h3>Benefits:</h3>
-                  <ul>
-                    {job.benefits.map((benefit, index) => (
-                      <li key={index}>{benefit}</li>
-                    ))}
-                  </ul>
-                </>
-              )} */}
             </div>
           </div>
         </div>
 
         <div className="space-y-6">
-          {false && (
+          {user && user.type === "user" && (
             <Card className="shadow-none">
               <CardHeader>
                 <CardTitle>Apply for this position</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {false ? (
-                  <Button className="w-full">Apply Now</Button>
-                ) : (
+                {/* {false ? ( */}
+                <Button
+                  className="w-full"
+                  onClick={async () => {
+                    await mutateAsync({
+                      userId: user.id,
+                      jobId: job.id,
+                    });
+                  }}
+                >
+                  Apply Now
+                </Button>
+                {/* ) : (
                   <Link href={`/login?redirect=/job/${id}`} className="w-full">
                     <Button className="w-full">Sign in to Apply</Button>
                   </Link>
-                )}
+                )} */}
                 <div className="text-sm text-muted-foreground space-y-2">
                   <div className="flex items-center gap-2">
                     <DollarSign className="h-4 w-4" />
@@ -161,7 +171,7 @@ export function JobDetailContent({ id, token }: JobDetailContentProps) {
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
                     <span>
-                      Posted <FormattedDate date={job.createdAt} />
+                      Posted <FormattedDate date={new Date(job.createdAt)} />
                     </span>
                   </div>
                 </div>
@@ -169,7 +179,7 @@ export function JobDetailContent({ id, token }: JobDetailContentProps) {
             </Card>
           )}
 
-          {false && (
+          {user && user.type === "org" && (
             <Card className="shadow-none">
               <CardHeader>
                 <CardTitle>Manage this job</CardTitle>
@@ -180,9 +190,11 @@ export function JobDetailContent({ id, token }: JobDetailContentProps) {
                     Edit Job
                   </Button>
                 </Link>
-                <Button className="w-full" variant="outline">
-                  View Applications
-                </Button>
+                <Link href={`/job/${job.id}/applications`} className="w-full">
+                  <Button className="w-full my-2" variant="outline">
+                    View Applications
+                  </Button>
+                </Link>
                 <Button className="w-full" variant="destructive">
                   Remove Job
                 </Button>
@@ -190,7 +202,7 @@ export function JobDetailContent({ id, token }: JobDetailContentProps) {
             </Card>
           )}
 
-          <Card className="shadow-none">
+          {/* <Card className="shadow-none">
             <CardHeader>
               <CardTitle className="text-lg">Job Details</CardTitle>
             </CardHeader>
@@ -212,7 +224,7 @@ export function JobDetailContent({ id, token }: JobDetailContentProps) {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {false && (
             <Card className="shadow-none">
@@ -220,12 +232,12 @@ export function JobDetailContent({ id, token }: JobDetailContentProps) {
                 <CardTitle className="text-lg">About the Company</CardTitle>
               </CardHeader>
               <CardContent>
-                {job.company && (
+                {job.createdBy && (
                   <div className="flex items-start gap-4">
-                    {job.company.logo ? (
+                    {job.createdBy.logo ? (
                       <Image
-                        src={job.company.logo}
-                        alt={`${job.company.name} logo`}
+                        src={job.createdBy.logo}
+                        alt={`${job.createdBy.name} logo`}
                         width={48}
                         height={48}
                         className="rounded-lg"
@@ -236,11 +248,11 @@ export function JobDetailContent({ id, token }: JobDetailContentProps) {
                       </div>
                     )}
                     <div className="space-y-2">
-                      <h3 className="font-semibold">{job.company.name}</h3>
-                      <p className="text-sm text-muted-foreground">{job.company.desc}</p>
+                      <h3 className="font-semibold">{job.createdBy.name}</h3>
+                      <p className="text-sm text-muted-foreground">{job.createdBy.desc}</p>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <MapPin className="h-4 w-4" />
-                        <span>{job.company.address}</span>
+                        <span>{job.createdBy.address}</span>
                       </div>
                     </div>
                   </div>

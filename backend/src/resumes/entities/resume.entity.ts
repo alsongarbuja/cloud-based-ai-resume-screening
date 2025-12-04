@@ -1,9 +1,12 @@
+import { Applied } from 'src/applied/entities/applied.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -19,8 +22,12 @@ export class Resume {
   @Column()
   resumeLink: string;
 
-  @OneToMany(() => User, (user) => user.resumes)
+  @OneToOne(() => User, (user) => user.resume)
+  @JoinColumn({ name: 'uploadedBy' })
   uploadedBy: User;
+
+  @OneToOne(() => Applied, (applied) => applied.usedResume)
+  appliedJob: Applied;
 
   @CreateDateColumn()
   createdAt: Date;

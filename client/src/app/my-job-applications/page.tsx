@@ -1,11 +1,8 @@
-import { userConnected } from "@/utils/userConnected";
 import Navbar from "@/components/layouts/navbar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Users } from "lucide-react";
 
 export default async function MyJobApplicationsPage() {
-  await userConnected();
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <Navbar />

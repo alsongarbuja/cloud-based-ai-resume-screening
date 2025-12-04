@@ -12,6 +12,7 @@ import { ResultsModule } from './results/results.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { IndustryModule } from './industry/industry.module';
 import { AuthModule } from './auth/auth.module';
+import { AwsModule } from './aws/aws.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -42,6 +43,7 @@ import configuration from './config/configuration';
     ResultsModule,
     IndustryModule,
     AuthModule,
+    AwsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

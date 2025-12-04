@@ -6,10 +6,14 @@ import { Logo } from "../ui/logo";
 import UserDropdownWrapper from "./user-dropdown-wrapper";
 import { ROUTES } from "@/config/routes";
 import { cookies } from "next/headers";
+import { getUserProfile } from "@/lib/database/firestore-server";
+import { UserType } from "@/types";
 
 const Navbar = async () => {
   const cookieStore = cookies();
   const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "");
+
+  const user = await getUserProfile(authToken?.value || "");
 
   return (
     <nav className="flex items-center justify-between py-6 border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
@@ -31,7 +35,12 @@ const Navbar = async () => {
 
       <div className="flex items-center gap-3 md:gap-4">
         {user ? (
-          <UserDropdownWrapper email={user.email!} name={user.name!} image={user.image!} />
+          <UserDropdownWrapper
+            email={user.email!}
+            name={user.username!}
+            image={user.profilePic!}
+            type={user.type! as UserType}
+          />
         ) : (
           <Link
             href={ROUTES.LOGIN}

@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const page = async () => {
   const cookieStore = cookies();
-  const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "");
+  const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "auth-token");
   let userData: User | null = null;
 
   if (authToken) {

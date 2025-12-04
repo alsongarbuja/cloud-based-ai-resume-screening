@@ -41,8 +41,8 @@ export class User {
   @OneToMany(() => Applied, (applied) => applied.userId)
   appliedJobs: Applied[];
 
-  @OneToMany(() => Resume, (resume) => resume.resumeLink)
-  resumes: Resume[];
+  @OneToOne(() => Resume, (resume) => resume.resumeLink)
+  resume: Resume;
 
   @OneToOne(() => Company, (company) => company.createdBy)
   company: Company;

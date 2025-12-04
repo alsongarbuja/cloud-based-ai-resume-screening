@@ -11,9 +11,14 @@ export class AppliedService {
     private appliedRepository: Repository<Applied>,
   ) {}
 
-  create() {
-    const applied = new Applied();
-    return this.appliedRepository.save(applied);
+  create(userId: number, jobId: number, usedResume: string) {
+    const applied = this.appliedRepository.create({
+      userId: { id: userId },
+      jobId: { id: jobId },
+      usedResume,
+    });
+    const savedApplied = this.appliedRepository.insert(applied);
+    return savedApplied;
   }
 
   findAll() {
@@ -22,6 +27,18 @@ export class AppliedService {
 
   findOne(id: number) {
     return this.appliedRepository.findBy({ id });
+  }
+
+  findWhere(where: Record<string, any>) {
+    return this.appliedRepository.find({
+      where: where,
+      relations: {
+        userId: true,
+        jobId: {
+          createdBy: true,
+        },
+      },
+    });
   }
 
   update(id: number, updateAppliedDto: UpdateAppliedDto) {

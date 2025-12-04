@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
+import { redirect } from "next/navigation";
 
 interface JobSeekerOnboardingFormProps {
   token: string;
@@ -14,40 +15,49 @@ interface JobSeekerOnboardingFormProps {
 
 export interface JobSeekerFormData {
   name: string;
-  about: string;
+  resume: File | null;
 }
 
 const JobSeekerOnboardingForm = ({ token, userId }: JobSeekerOnboardingFormProps) => {
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["profile", "onboarding", "user"],
     mutationFn: (jobseekerData: JobSeekerFormData) => {
-      return fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userId}`, {
-        method: "PATCH",
-        body: JSON.stringify(jobseekerData),
+      const formData = new FormData();
+      formData.append("name", jobseekerData.name);
+      formData.append("userId", userId.toString());
+
+      if (jobseekerData.resume) {
+        formData.append("resume", jobseekerData.resume);
+      }
+      return fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/resumes`, {
+        method: "POST",
+        body: formData,
         headers: {
-          Cookie: `${process.env.AUTH_COOKIE_TOKEN_NAME}=${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
+    },
+    onSuccess(data) {
+      if (data.ok) {
+        redirect("/");
+      }
+    },
+    onError(error) {
+      console.error(error);
     },
   });
   const [formData, setFormData] = useState<JobSeekerFormData>({
     name: "",
-    about: "",
+    resume: null,
   });
-  const [errors, setErrors] = useState<Partial<JobSeekerFormData>>({});
+  const [errors, setErrors] = useState<Partial<{ name: string; resume: string }>>({});
   const { toast } = useToast();
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<JobSeekerFormData> = {};
+    const newErrors: Partial<{ name: string; resume: string }> = {};
 
     if (!formData.name.trim()) {
       newErrors.name = "Full name is required";
-    }
-
-    if (!formData.about.trim()) {
-      newErrors.about = "About section is required";
-    } else if (formData.about.trim().length < 50) {
-      newErrors.about = "About section must be at least 50 characters";
     }
 
     setErrors(newErrors);
@@ -78,7 +88,7 @@ const JobSeekerOnboardingForm = ({ token, userId }: JobSeekerOnboardingFormProps
     }
   };
 
-  const handleInputChange = (field: keyof JobSeekerFormData, value: string) => {
+  const handleInputChange = (field: keyof JobSeekerFormData, value: string | File | null) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -92,6 +102,14 @@ const JobSeekerOnboardingForm = ({ token, userId }: JobSeekerOnboardingFormProps
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Get the FileList object, and take the first file
+    const file = e.target.files ? e.target.files[0] : null;
+
+    // Call the central handler with the field name and the File object
+    handleInputChange("resume", file);
+  };
+
   return (
     <div className="space-y-6 w-full">
       <div className="space-y-2 text-center">
@@ -101,36 +119,30 @@ const JobSeekerOnboardingForm = ({ token, userId }: JobSeekerOnboardingFormProps
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
         <div className="space-y-2">
-          <Label htmlFor="name">Full Name *</Label>
+          <Label htmlFor="name">Name</Label>
           <Input
             id="name"
             value={formData.name}
             onChange={(e) => handleInputChange("name", e.target.value)}
-            placeholder="Enter your full name"
+            placeholder="Name for the resume"
+            required={false}
             disabled={isPending}
           />
           {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="about">About You *</Label>
-          <textarea
-            id="about"
-            value={formData.about}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              handleInputChange("about", e.target.value)
-            }
-            placeholder="Tell us about your experience, skills, career goals, and what makes you unique as a candidate."
-            rows={5}
+          <Label htmlFor="resume">Upload Resume *</Label>
+          <Input
+            id="resume"
+            onChange={handleFileChange}
+            placeholder="Upload your resume"
+            type="file"
             disabled={isPending}
-            className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           />
-          <p className="text-xs text-muted-foreground">
-            {formData.about.length}/50 characters minimum
-          </p>
-          {errors.about && <p className="text-sm text-destructive">{errors.about}</p>}
+          {errors.resume && <p className="text-sm text-destructive">{errors.resume}</p>}
         </div>
 
         <Button type="submit" disabled={isPending} className="w-full" size="lg">

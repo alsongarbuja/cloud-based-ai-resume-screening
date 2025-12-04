@@ -12,8 +12,14 @@ export class ResumesService {
     private resumeRepository: Repository<Resume>,
   ) {}
 
-  create(createResumeDto: CreateResumeDto) {
-    return 'This action adds a new resume';
+  create(createResumeDto: CreateResumeDto & { resumeLink: string }) {
+    const resume = this.resumeRepository.create(createResumeDto);
+    const savedResume = this.resumeRepository.insert({
+      name: resume.name,
+      resumeLink: resume.resumeLink,
+      uploadedBy: { id: +createResumeDto.userId },
+    });
+    return savedResume;
   }
 
   findAll() {
@@ -22,6 +28,10 @@ export class ResumesService {
 
   findOne(id: number) {
     return this.resumeRepository.findBy({ id });
+  }
+
+  findByUserId(userId: number) {
+    return this.resumeRepository.findOneBy({ uploadedBy: { id: userId } });
   }
 
   update(id: number, updateResumeDto: UpdateResumeDto) {

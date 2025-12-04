@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,22 +9,7 @@ import { MapPin, DollarSign, Calendar, Edit, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
 import { ROUTES, getDynamicRoute } from "@/config/routes";
 import { useQuery } from "@tanstack/react-query";
-
-interface Job {
-  id: string;
-  title: string;
-  resp: string;
-  req: string;
-  desc: string;
-  // tags: string[];
-  applyBy: Date;
-  // industries: number[];
-  minSalary: number;
-  maxSalary: number;
-  type: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Job } from "@/types";
 
 interface CompanyJobListingsProps {
   token: string;
@@ -94,7 +78,7 @@ const CompanyJobListings = ({ token }: CompanyJobListingsProps) => {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
-                      {/* {job.location} */}
+                      {job.location}
                     </div>
                     <div className="flex items-center gap-1">
                       <DollarSign className="w-4 h-4" />
@@ -102,7 +86,7 @@ const CompanyJobListings = ({ token }: CompanyJobListingsProps) => {
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      {/* {formatRelativeTime(job.createdAt)} */}
+                      {formatRelativeTime(new Date(job.createdAt))}
                     </div>
                   </div>
                 </div>
@@ -116,16 +100,6 @@ const CompanyJobListings = ({ token }: CompanyJobListingsProps) => {
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">{job.type}</Badge>
-                  {/* {job.benefits.slice(0, 3).map((benefit, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {benefit}
-                    </Badge>
-                  ))}
-                  {job.benefits.length > 3 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{job.benefits.length - 3} more
-                    </Badge>
-                  )} */}
                 </div>
 
                 <p className="text-sm text-muted-foreground line-clamp-2">{job.desc}</p>

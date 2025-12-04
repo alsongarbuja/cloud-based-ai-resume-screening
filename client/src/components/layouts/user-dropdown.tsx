@@ -73,15 +73,15 @@ const UserDropdown = ({ email, name, image, userType }: UserInfoProps) => {
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={ROUTES.MY_JOBS}>
                   <Layers2 size={16} strokeWidth={2} className="opacity-60" aria-hidden="true" />
-                  <span>My Job Listings</span>
+                  <span>Your Job Listings</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer">
+              {/* <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={ROUTES.MY_JOB_APPLICATIONS}>
                   <Users size={16} strokeWidth={2} className="opacity-60" aria-hidden="true" />
                   <span>Applications Received</span>
                 </Link>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem asChild className="cursor-pointer">
                 <Link href={ROUTES.POST_JOB}>
                   <FileText size={16} strokeWidth={2} className="opacity-60" aria-hidden="true" />

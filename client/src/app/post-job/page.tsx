@@ -31,7 +31,7 @@ export default async function PostJobPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* <Navbar /> */}
+      <Navbar />
       <div className="pt-8 pb-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Post a Job</h1>

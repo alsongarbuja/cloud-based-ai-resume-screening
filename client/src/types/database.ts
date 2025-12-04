@@ -12,6 +12,16 @@ export interface User {
   updatedAt: Date;
 }
 
+export interface Applied {
+  id: number;
+  status: "applied" | "rejected" | "interviewing" | "archieved";
+  usedResume: string;
+  userId: User;
+  jobId: Job;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Company {
   id: string;
   name: string;

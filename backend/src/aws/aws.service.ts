@@ -1,0 +1,56 @@
+import {
+  PutObjectCommand,
+  PutObjectCommandInput,
+  S3Client,
+} from '@aws-sdk/client-s3';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+interface UploadFile extends Express.Multer.File {
+  buffer: Buffer;
+}
+
+@Injectable()
+export class AwsService {
+  private s3Client: S3Client;
+  private bucketName: string;
+
+  constructor(private readonly configService: ConfigService) {
+    this.bucketName = this.configService.getOrThrow('aws.bucketName');
+
+    this.s3Client = new S3Client({
+      region: configService.getOrThrow('aws.region'),
+      credentials: {
+        accessKeyId: configService.getOrThrow('aws.accessId'),
+        secretAccessKey: configService.getOrThrow('aws.secretAccessKey'),
+      },
+    });
+  }
+
+  async uploadFile(
+    file: UploadFile,
+    id: number,
+    folder: string = 'resumes',
+  ): Promise<string> {
+    const fileExtension = file.originalname.split('.').pop();
+    const uniqueKey = `${folder}/${id}.${fileExtension}`;
+
+    const uploadParams: PutObjectCommandInput = {
+      Bucket: this.bucketName,
+      Key: uniqueKey,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      ACL: 'public-read',
+    };
+
+    try {
+      await this.s3Client.send(new PutObjectCommand(uploadParams));
+
+      // Construct and return the public URL
+      return `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${uniqueKey}`;
+    } catch (error) {
+      console.error('S3 Upload Error:', error);
+      throw new InternalServerErrorException('Failed to upload file to S3.');
+    }
+  }
+}

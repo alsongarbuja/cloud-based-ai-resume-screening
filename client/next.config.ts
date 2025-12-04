@@ -65,7 +65,7 @@ const nextConfig: NextConfig = {
       `style-src 'self' 'unsafe-inline'`,
       `img-src 'self' data: blob: https://images.unsplash.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://*.google.com https://*.gstatic.com`,
       `font-src 'self' data:`,
-      `connect-src 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com`,
+      `connect-src 'self' http://localhost:5000 https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com`,
       `frame-src 'self'`,
       `object-src 'none'`,
       `base-uri 'self'`,
