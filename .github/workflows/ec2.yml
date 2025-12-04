@@ -1,0 +1,46 @@
+name: Deploy backend to AWS EC2 instance
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout in the repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.Js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: Install dependencies
+        run: npm install --force
+        working-directory: backend
+
+      - name: Run build
+        run: npm run build --if-present
+        working-directory: backend
+
+      - name: Deploy to EC2
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SOURCE: "backend/"
+          ARGS: "-glgoDzvc -i --delete"
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.EC2_HOST }}
+          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+          TARGET: "home/${{ secrets.EC2_USERNAME }}/kaam-ai/app"
+          SCRIPT_AFTER: |
+            cd home/${{ secrets.EC2_USERNAME }}/kaam-ai/app
+            echo "Stoping the previous process"
+            sudo pm2 kill
+            echo "Starting the server"
+            sudo npm start
