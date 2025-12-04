@@ -33,8 +33,12 @@ def train_and_save_vectorizer(job_data_path, resume_data_path, job_col, resume_c
 
 def load_vectorizer():
   """Loads the trained vectorizer from the saved file."""
+  SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+  VECTORIZER_PATH = 'tfidf_vectorizer.pkl'
+  SCALER_PATH = os.path.join(SCRIPT_DIR, VECTORIZER_PATH)
+
   try:
-    with open(VECTORIZER_PATH, 'rb') as file:
+    with open(SCALER_PATH, 'rb') as file:
       return pickle.load(file)
   except FileNotFoundError:
     print(f"❌ Error: Vectorizer file not found at {VECTORIZER_PATH}. Please run the training script first.")

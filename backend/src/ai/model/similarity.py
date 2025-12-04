@@ -1,13 +1,23 @@
+import io
 import sys
 import json
 import pandas as pd
 from vectorize import load_vectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-def run_model(job_post_texts: list[str], resumes_texts: list[str]):
+sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.detach(), encoding='utf-8')
+
+def run_model(inputs: dict):
   vectorizer = load_vectorizer()
 
-  clean_resumes_texts = resumes_texts
+  clean_resumes_texts = inputs['resumes_texts']
+  job_post_texts = inputs['job_post_texts']
+
+  if isinstance(job_post_texts, str):
+    job_post_texts = [job_post_texts]
+  if isinstance(clean_resumes_texts, str):
+    clean_resumes_texts = [clean_resumes_texts]
 
   job_vector = vectorizer.transform(job_post_texts)
   resume_vectors = vectorizer.transform(clean_resumes_texts)
@@ -34,9 +44,8 @@ if __name__ == "__main__":
 
   try:
     input_data = json.loads(input_arg)
+    # print(input_data)
     result = run_model(input_data)
-
-    # 🔑 CRITICAL: Print the result JSON to stdout for NestJS to capture
     print(json.dumps(result))
   except Exception as e:
     # Print errors to stderr

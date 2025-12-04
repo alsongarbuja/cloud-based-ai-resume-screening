@@ -1,6 +1,6 @@
+import { PredictButton } from "@/components/admin/predict-button";
 import ApplicationUserCard from "@/components/jobs/application-user-card";
 import Navbar from "@/components/layouts/navbar";
-import { Button } from "@/components/ui";
 import { EmptyState } from "@/components/ui/empty-state";
 import { getJobApplications, rankAppplicant } from "@/lib/database/firestore-server";
 import { FileText } from "lucide-react";
@@ -22,16 +22,7 @@ export default async function JobApplicationsPage({ params }: { params: Promise<
           <p className="mt-2 text-muted-foreground">{applications?.length} applicants</p>
         </div>
 
-        <Button
-          className="my-2"
-          variant="outline"
-          onClick={async () => {
-            const ranking = await rankAppplicant(authToken?.value || "", +id);
-            console.log(ranking);
-          }}
-        >
-          Rank with KaamAI
-        </Button>
+        <PredictButton id={+id} token={authToken?.value || ""} />
 
         {applications && applications.length > 0 ? (
           <>

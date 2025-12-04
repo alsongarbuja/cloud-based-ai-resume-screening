@@ -1,4 +1,4 @@
-import path from 'path';
+import * as path from 'path';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { spawn } from 'child_process';
 
@@ -14,8 +14,10 @@ export class AiService {
     const inputArg = JSON.stringify(inputData);
 
     return new Promise((resolve, reject) => {
-      // 🔑 CRITICAL: Spawn the Python process
-      const pythonProcess = spawn('python3', [scriptPath, inputArg]);
+      const pythonProcess = spawn(
+        'e:\\masters-classes\\dcc-classes\\cloud-based-ai-resume-screening\\.venv\\Scripts\\python.exe',
+        [scriptPath, inputArg],
+      );
 
       let output = '';
       let error = '';

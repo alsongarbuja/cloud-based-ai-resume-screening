@@ -1,6 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AiService } from './ai.service';
 import { AppliedService } from 'src/applied/applied.service';
+import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('ai')
 export class AiController {
@@ -10,6 +11,7 @@ export class AiController {
   ) {}
 
   @Post('predict')
+  @UseGuards(JWTAuthGuard)
   async getPrediction(@Body() inputDto: { jobId: number }) {
     const applications = await this.appliedService.findWhere({
       jobId: { id: inputDto.jobId },

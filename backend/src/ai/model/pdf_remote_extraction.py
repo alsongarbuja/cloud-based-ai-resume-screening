@@ -54,8 +54,6 @@ def extract_text_from_remote_pdf(pdf_url):
     """
     try:
         # 1. Download the PDF content (as bytes)
-        print(f"Attempting to download from: {pdf_url}")
-
         response = requests.get(pdf_url, timeout=10) # Set a timeout
         response.raise_for_status() # Raise exception for bad status codes (4xx or 5xx)
 
