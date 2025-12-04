@@ -22,8 +22,8 @@ def run_model(inputs: dict):
   job_vector = vectorizer.transform(job_post_texts)
   resume_vectors = vectorizer.transform(clean_resumes_texts)
 
-  print(f"Job Vector Shape: {job_vector.shape}")
-  print(f"Resume Vectors shape: {resume_vectors.shape}")
+  print(f"Job Vector Shape: {job_vector.shape}", file=sys.stderr)
+  print(f"Resume Vectors shape: {resume_vectors.shape}", file=sys.stderr)
 
   similarity_scores = cosine_similarity(job_vector, resume_vectors)
 
