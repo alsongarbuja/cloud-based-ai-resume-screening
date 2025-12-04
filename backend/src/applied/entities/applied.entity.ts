@@ -26,6 +26,11 @@ export class Applied {
   @Column()
   usedResume: string;
 
+  @Column({
+    type: 'text',
+  })
+  cleanText: string;
+
   @ManyToOne(() => User, (user) => user.appliedJobs)
   @JoinColumn({ name: 'userId' })
   userId: User;

@@ -47,6 +47,20 @@ export const getJobApplications = cache(
   }
 );
 
+export const rankAppplicant = cache(async (token: string, jobId: number) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/ai/predict`, {
+    method: "POST",
+    body: JSON.stringify({ jobId }),
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `auth-token=${token}`,
+    },
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data;
+});
+
 export const getCompanyById = cache(async (id: string): Promise<Company | null> => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/companies/${id}`);
   if (!res.ok) return null;

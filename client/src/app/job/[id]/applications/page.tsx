@@ -2,7 +2,7 @@ import ApplicationUserCard from "@/components/jobs/application-user-card";
 import Navbar from "@/components/layouts/navbar";
 import { Button } from "@/components/ui";
 import { EmptyState } from "@/components/ui/empty-state";
-import { getJobApplications } from "@/lib/database/firestore-server";
+import { getJobApplications, rankAppplicant } from "@/lib/database/firestore-server";
 import { FileText } from "lucide-react";
 import { cookies } from "next/headers";
 
@@ -22,7 +22,14 @@ export default async function JobApplicationsPage({ params }: { params: Promise<
           <p className="mt-2 text-muted-foreground">{applications?.length} applicants</p>
         </div>
 
-        <Button className="my-2" variant="outline">
+        <Button
+          className="my-2"
+          variant="outline"
+          onClick={async () => {
+            const ranking = await rankAppplicant(authToken?.value || "", +id);
+            console.log(ranking);
+          }}
+        >
           Rank with KaamAI
         </Button>
 

@@ -15,12 +15,14 @@ import { CreateAppliedDto } from './dto/create-applied.dto';
 import { UpdateAppliedDto } from './dto/update-applied.dto';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ResumesService } from 'src/resumes/resumes.service';
+import { PdfService } from 'src/pdf/pdf.service';
 
 @Controller('applied')
 export class AppliedController {
   constructor(
     private readonly appliedService: AppliedService,
     private readonly resumeService: ResumesService,
+    private readonly pdfService: PdfService,
   ) {}
 
   @Post()
@@ -30,10 +32,14 @@ export class AppliedController {
     if (!resume) {
       throw new NotFoundException('Resume not found in your profile');
     }
+    const cleanResumeText = await this.pdfService.downloadAndExtractText(
+      resume.resumeLink,
+    );
     return this.appliedService.create(
       createAppliedDto.userId,
       createAppliedDto.jobId,
       resume.resumeLink,
+      cleanResumeText,
     );
   }
 
