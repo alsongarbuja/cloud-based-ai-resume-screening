@@ -25,8 +25,8 @@ export interface Applied {
 export interface Company {
   id: string;
   name: string;
-  location: string;
-  about: string;
+  address: string;
+  desc: string;
   website: string;
   logo: string;
   xAccount?: string;
@@ -46,7 +46,7 @@ export interface JobSeeker {
 }
 
 export interface Job {
-  id: string;
+  id: number;
   title: string;
   desc: string;
   type: string;
@@ -58,7 +58,7 @@ export interface Job {
   req: string;
   createdAt: Date;
   updatedAt: Date;
-  createdBy?: Company;
+  createdBy: Company;
 }
 
 export interface SavedJob {

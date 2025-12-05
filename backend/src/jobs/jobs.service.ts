@@ -30,7 +30,10 @@ export class JobsService {
   }
 
   findOne(id: number) {
-    return this.jobRepository.findOneBy({ id });
+    return this.jobRepository.findOne({
+      where: { id },
+      relations: ['createdBy'],
+    });
   }
 
   async findWhere(companyId: number) {

@@ -25,9 +25,11 @@ export default async function MyApplicationsPage() {
             <ul>
               {applications.map((application) => (
                 <ApplicationCard
+                  applicationId={application.id}
                   key={application.id}
                   job={application.jobId}
                   status={application.status}
+                  token={authToken}
                 />
               ))}
             </ul>

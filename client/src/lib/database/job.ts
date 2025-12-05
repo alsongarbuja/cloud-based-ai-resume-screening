@@ -19,3 +19,14 @@ export const getJobs = cache(async (filter: dynamicObj) => {
     return { jobs: [] };
   }
 });
+
+export const getJobById = cache(async (id: number) => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/jobs/${id}`);
+    const data = await res.json();
+
+    return data as Job;
+  } catch (error) {
+    logger.error(`Error while fetching job of id ${id} ${(error as Error)?.message}`);
+  }
+});

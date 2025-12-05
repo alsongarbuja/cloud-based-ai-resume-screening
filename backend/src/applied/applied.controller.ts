@@ -36,7 +36,7 @@ export class AppliedController {
       resume.resumeLink,
     );
     return this.appliedService.create(
-      createAppliedDto.userId,
+      req.user.id,
       createAppliedDto.jobId,
       resume.resumeLink,
       cleanResumeText,
@@ -68,6 +68,7 @@ export class AppliedController {
   }
 
   @Delete(':id')
+  @UseGuards(JWTAuthGuard)
   remove(@Param('id') id: string) {
     return this.appliedService.remove(+id);
   }

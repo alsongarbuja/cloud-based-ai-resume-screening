@@ -71,6 +71,18 @@ export class UsersController {
     return applications;
   }
 
+  @Get('check/applied/:jobId')
+  @UseGuards(JWTAuthGuard)
+  async checkHasApplied(@Req() req, @Param('jobId') jobId: string) {
+    const userId: number = req.user.id;
+    const applied = await this.appliedService.findWhere({
+      jobId: { id: jobId },
+      userId: { id: userId },
+    });
+
+    return applied.length > 0 ? applied[0].id : null;
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
