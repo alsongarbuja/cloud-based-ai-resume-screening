@@ -9,7 +9,9 @@ import {
   UseGuards,
   Req,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
+import { In, MoreThanOrEqual } from 'typeorm';
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
@@ -39,16 +41,32 @@ export class JobsController {
   }
 
   @Get()
-  findAll() {
-    return this.jobsService.findAll();
+  findAll(@Query() queries: Record<string, string>) {
+    const { type, createdAt } = queries;
+    const filters = {};
+    if (type) {
+      filters['type'] = In(type.split(','));
+    }
+    if (createdAt !== 'all') {
+      const now = new Date();
+      const dateMap: Record<string, number> = {
+        '1h': 60 * 60 * 1000,
+        '1d': 24 * 60 * 60 * 1000,
+        '7d': 7 * 24 * 60 * 60 * 1000,
+        '30d': 30 * 24 * 60 * 60 * 1000,
+        '90d': 90 * 24 * 60 * 60 * 1000,
+      };
+      const durationMs = dateMap[createdAt];
+      filters['createdAt'] = MoreThanOrEqual(
+        new Date(now.getTime() - durationMs),
+      );
+    }
+    return this.jobsService.findAll(filters);
   }
 
   @Get('mine')
   @UseGuards(JWTAuthGuard)
   async findMine(@Req() req) {
-    // console.log(req.user);
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const company = await this.companyService.findWhere((req.user as User).id);
     if (!company) {
       return {

@@ -21,10 +21,12 @@ export class JobsService {
     return savedJob;
   }
 
-  findAll() {
-    return this.jobRepository.find({
+  async findAll(filters?: Record<string, any>) {
+    const jobs = await this.jobRepository.find({
+      where: filters || {},
       relations: ['createdBy'],
     });
+    return jobs;
   }
 
   findOne(id: number) {

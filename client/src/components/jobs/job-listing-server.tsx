@@ -1,6 +1,6 @@
 import React from "react";
-import { getJobs } from "@/lib/database/firestore-server";
 import JobCard from "./job-card";
+import { getJobs } from "@/lib/database/job";
 
 interface JobListingServerProps {
   currentPage: number;
@@ -15,9 +15,9 @@ export default async function JobListingServer({
   timePosted,
   isPublic = false,
 }: JobListingServerProps) {
-  const { jobs, hasMore } = await getJobs({
-    employmentType: jobTypes.length > 0 ? jobTypes : undefined,
-    timePosted: timePosted !== "all" ? timePosted : undefined,
+  const { jobs } = await getJobs({
+    type: jobTypes.length > 0 ? jobTypes : "",
+    createdAt: timePosted,
     page: currentPage,
     limit: 10,
   });
@@ -40,9 +40,7 @@ export default async function JobListingServer({
         <JobCard key={job.id} job={job} isPublic={isPublic} />
       ))}
 
-      <div className="text-center py-4 text-sm text-muted-foreground">
-        {jobs.length} jobs found {hasMore && "(more available)"}
-      </div>
+      <div className="text-center py-4 text-sm text-muted-foreground">{jobs.length} jobs found</div>
     </div>
   );
 }
