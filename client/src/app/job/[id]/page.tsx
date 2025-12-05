@@ -1,10 +1,9 @@
 import { Suspense } from "react";
-// import { auth } from "@/lib/auth/config";
 import Navbar from "@/components/layouts/navbar";
 import { JobDetailContent } from "./job-detail-content";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cookies } from "next/headers";
-import { getUserProfile } from "@/lib/database/firestore-server";
+import { getUserProfile } from "@/lib/database/profile";
+import { getAuthToken } from "@/lib/server-only";
 
 type Params = Promise<{ id: string }>;
 
@@ -42,18 +41,16 @@ function JobContentSkeleton() {
 }
 
 export default async function JobDetailPage({ params }: { params: Params }) {
-  // const session = await auth();
   const { id } = await params;
-  const cookieStore = cookies();
-  const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "auth-token");
+  const authToken = await getAuthToken();
 
-  const user = await getUserProfile(authToken?.value || "");
+  const user = await getUserProfile(authToken);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <Navbar />
       <Suspense fallback={<JobContentSkeleton />}>
-        <JobDetailContent id={parseInt(id)} token={authToken?.value || ""} user={user} />
+        <JobDetailContent id={parseInt(id)} token={authToken} user={user} />
       </Suspense>
     </div>
   );

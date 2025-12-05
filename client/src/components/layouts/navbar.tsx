@@ -5,15 +5,13 @@ import { ThemeToggle } from "../theme/ThemeToggle";
 import { Logo } from "../ui/logo";
 import UserDropdownWrapper from "./user-dropdown-wrapper";
 import { ROUTES } from "@/config/routes";
-import { cookies } from "next/headers";
-import { getUserProfile } from "@/lib/database/firestore-server";
+import { getUserProfile } from "@/lib/database/profile";
 import { UserType } from "@/types";
+import { getAuthToken } from "@/lib/server-only";
 
 const Navbar = async () => {
-  const cookieStore = cookies();
-  const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "");
-
-  const user = await getUserProfile(authToken?.value || "");
+  const token = await getAuthToken();
+  const user = await getUserProfile(token);
 
   return (
     <nav className="flex items-center justify-between py-6 border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">

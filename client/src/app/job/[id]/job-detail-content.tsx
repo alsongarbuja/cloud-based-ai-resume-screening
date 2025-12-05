@@ -36,7 +36,7 @@ export function JobDetailContent({ id, token, user }: JobDetailContentProps) {
 
   const { mutateAsync } = useMutation({
     mutationKey: ["applied"],
-    mutationFn: async (data: { userId: number; jobId: number }) => {
+    mutationFn: async (data: { jobId: number }) => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/applied`, {
         method: "POST",
         body: JSON.stringify(data),
@@ -147,7 +147,6 @@ export function JobDetailContent({ id, token, user }: JobDetailContentProps) {
                   className="w-full"
                   onClick={async () => {
                     await mutateAsync({
-                      userId: user.id,
                       jobId: job.id,
                     });
                   }}

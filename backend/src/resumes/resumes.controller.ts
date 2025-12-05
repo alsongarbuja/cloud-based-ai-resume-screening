@@ -34,9 +34,9 @@ export class ResumesController {
     @UploadedFile() file,
   ) {
     const userId: number = req.user.id;
-    // const resumeUrl = await this.awsService.uploadFile(file, userId, 'resumes');
-    const resumeUrl =
-      'https://code.ics.uci.edu/wp-content/uploads/2020/06/Resume-Sample-1-Software-Engineer.pdf';
+    const resumeUrl = await this.awsService.uploadFile(file, userId, 'resumes');
+    // const resumeUrl =
+    //   'https://code.ics.uci.edu/wp-content/uploads/2020/06/Resume-Sample-1-Software-Engineer.pdf';
     return this.resumesService.create({
       ...createResumeDto,
       resumeLink: resumeUrl,

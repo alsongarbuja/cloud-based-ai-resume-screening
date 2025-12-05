@@ -1,6 +1,6 @@
 // import { auth } from "@/lib/auth/config";
 // import { getJobById as getJobByIdClient } from "@/lib/database/firestore";
-import { getJobById as getJobByIdServer } from "@/lib/database/firestore-server";
+import { getJobById as getJobByIdServer } from "@/lib/database/profile";
 import { redirect } from "next/navigation";
 // import Navbar from "@/components/layouts/navbar";
 // "use client";

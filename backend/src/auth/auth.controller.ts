@@ -41,9 +41,11 @@ export class AuthController {
       res.redirect(
         `${this.configService.get<string>('client.url')}${user.redirectTo || ''}`,
       );
+    } else {
+      res.redirect(
+        `${this.configService.get<string>('client.url')}/auth/error`,
+      );
     }
-
-    res.redirect(`${this.configService.get<string>('client.url')}/auth/error`);
   }
 
   @Get('logout')

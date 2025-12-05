@@ -29,7 +29,7 @@ export const locations = [
 export const timeFilterOptions = [
   { id: 1, value: "all", label: "All Time" },
   { id: 2, value: "1h", label: "Last Hour" },
-  { id: 3, value: "24h", label: "Last 24 Hours" },
+  { id: 3, value: "1d", label: "Last 24 Hours" },
   { id: 4, value: "7d", label: "Last 7 Days" },
   { id: 5, value: "30d", label: "Last 30 Days" },
   { id: 6, value: "90d", label: "Last 90 Days" },
