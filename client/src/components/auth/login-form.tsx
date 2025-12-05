@@ -1,40 +1,19 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-// import { GitHub, GitHubBlack } from "@/assets/svg/GitHub";
 import Google from "@/assets/svg/Google";
-// import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ROUTES, getDynamicRoute } from "@/config/routes";
 
 const LoginForm = () => {
-  // const { data: session } = useSession();
-  // const router = useRouter();
   const searchParams = useSearchParams();
 
   const redirectTo = searchParams.get("redirect") || ROUTES.HOME;
   const error = searchParams.get("error");
-  const email = searchParams.get("email");
-
-  // useEffect(() => {
-  //   if (session?.user) {
-  //     router.push(redirectTo);
-  //   }
-  // }, [session, router, redirectTo]);
 
   return (
     <div className="flex flex-col gap-6">
-      {error === "AlreadyRegistered" && (
-        <div className="bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/50 text-blue-600 dark:text-blue-400 px-5 py-4 rounded-xl backdrop-blur-sm">
-          <p className="font-semibold text-base mb-1.5">Account Already Exists</p>
-          <p className="text-sm opacity-90">
-            {email ? `An account for ${email} already exists. ` : "You already have an account. "}
-            Please sign in instead.
-          </p>
-        </div>
-      )}
-
       {error === "AuthenticationFailed" && (
         <div className="bg-destructive/10 dark:bg-destructive/20 border border-destructive/50 text-destructive px-5 py-4 rounded-xl backdrop-blur-sm">
           <p className="font-semibold text-base mb-1.5">Authentication Failed</p>
@@ -70,11 +49,6 @@ const LoginForm = () => {
         <CardContent className="px-6 pb-6">
           <div className="flex flex-col gap-3">
             <button
-              // onClick={async () => {
-              //   await signIn("google", {
-              //     callbackUrl: `${ROUTES.AUTH_CALLBACK}${redirectTo !== ROUTES.HOME ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`,
-              //   });
-              // }}
               onClick={() => {
                 window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google?redirectTo=${encodeURIComponent(redirectTo)}`;
               }}
@@ -83,19 +57,6 @@ const LoginForm = () => {
               <Google className="size-5 group-hover:scale-110 transition-transform duration-200" />
               <span>Continue with Google</span>
             </button>
-
-            {/* <button
-              onClick={async () => {
-                await signIn("github", {
-                  callbackUrl: `${ROUTES.AUTH_CALLBACK}${redirectTo !== ROUTES.HOME ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`,
-                });
-              }}
-              className="group w-full flex items-center justify-center gap-3 px-5 py-3.5 border-2 border-border/50 rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 font-medium"
-            >
-              <GitHub className="size-5 hidden dark:block group-hover:scale-110 transition-transform duration-200" />
-              <GitHubBlack className="size-5 dark:hidden group-hover:scale-110 transition-transform duration-200" />
-              <span>Continue with GitHub</span>
-            </button> */}
           </div>
         </CardContent>
       </Card>

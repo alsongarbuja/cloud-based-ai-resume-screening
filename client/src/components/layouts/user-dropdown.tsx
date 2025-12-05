@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,8 +12,7 @@ import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import Link from "next/link";
-import { Heart, Layers2, LogOut, FileText, Users } from "lucide-react";
-// import { signOut } from "next-auth/react";
+import { Heart, Layers2, LogOut, FileText } from "lucide-react";
 import { ROUTES } from "@/config/routes";
 
 interface UserInfoProps {
@@ -27,12 +25,9 @@ interface UserInfoProps {
 const UserDropdown = ({ email, name, image, userType }: UserInfoProps) => {
   const handleSignOut = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`);
-
-      window.location.href = ROUTES.HOME;
+      window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`;
     } catch (error) {
       console.error("Sign out error:", error);
-      window.location.href = ROUTES.HOME;
     }
   };
 
