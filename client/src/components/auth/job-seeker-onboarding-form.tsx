@@ -21,7 +21,7 @@ export interface JobSeekerFormData {
 const JobSeekerOnboardingForm = ({ token, userId }: JobSeekerOnboardingFormProps) => {
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["profile", "onboarding", "user"],
-    mutationFn: (jobseekerData: JobSeekerFormData) => {
+    mutationFn: async (jobseekerData: JobSeekerFormData) => {
       const formData = new FormData();
       formData.append("name", jobseekerData.name);
       formData.append("userId", userId.toString());
@@ -29,16 +29,18 @@ const JobSeekerOnboardingForm = ({ token, userId }: JobSeekerOnboardingFormProps
       if (jobseekerData.resume) {
         formData.append("resume", jobseekerData.resume);
       }
-      return fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/resumes`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/resumes`, {
         method: "POST",
         body: formData,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      const data = await res.json();
+      return data;
     },
     onSuccess(data) {
-      if (data.ok) {
+      if (data) {
         redirect("/");
       }
     },
@@ -76,16 +78,16 @@ const JobSeekerOnboardingForm = ({ token, userId }: JobSeekerOnboardingFormProps
       return;
     }
 
-    try {
-      await mutateAsync(formData);
-    } catch (error) {
-      console.error("Job seeker onboarding error:", error);
-      toast({
-        title: "Setup Error",
-        description: "Failed to set up your profile. Please try again.",
-        variant: "destructive",
-      });
-    }
+    await mutateAsync(formData);
+    // try {
+    // } catch (error) {
+    //   console.error("Job seeker onboarding error:", error);
+    //   toast({
+    //     title: "Setup Error",
+    //     description: "Failed to set up your profile. Please try again.",
+    //     variant: "destructive",
+    //   });
+    // }
   };
 
   const handleInputChange = (field: keyof JobSeekerFormData, value: string | File | null) => {
