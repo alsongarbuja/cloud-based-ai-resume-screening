@@ -16,7 +16,7 @@ export interface CompanyFormData {
   website: string;
   linkedin: string;
   xLink?: string;
-  logo: string;
+  logo: File | null;
 }
 
 const CompanyOnboardingForm = ({ token }: { token: string }) => {
@@ -24,11 +24,24 @@ const CompanyOnboardingForm = ({ token }: { token: string }) => {
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["profile", "onboarding", "company"],
     mutationFn: (companyData: CompanyFormData) => {
+      const formData = new FormData();
+      formData.append("name", companyData.name);
+      formData.append("address", companyData.address);
+      formData.append("desc", companyData.desc);
+      formData.append("linkedin", companyData.linkedin);
+      formData.append("website", companyData.website);
+
+      if (companyData.xLink) {
+        formData.append("xLink", companyData.xLink);
+      }
+      if (companyData.logo) {
+        formData.append("logo", companyData.logo);
+      }
+
       return fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/companies`, {
         method: "POST",
-        body: JSON.stringify(companyData),
+        body: formData,
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -46,14 +59,16 @@ const CompanyOnboardingForm = ({ token }: { token: string }) => {
     desc: "",
     website: "",
     linkedin: "",
-    logo: "",
+    logo: null,
     xLink: "",
   });
-  const [errors, setErrors] = useState<Partial<CompanyFormData>>({});
+  const [errors, setErrors] = useState<
+    Partial<Exclude<CompanyFormData, "logo">> & { logo?: string }
+  >({});
   const { toast } = useToast();
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<CompanyFormData> = {};
+    const newErrors: Partial<Exclude<CompanyFormData, "logo"> & { logo?: string }> = {};
 
     if (!formData.name.trim()) {
       newErrors.name = "Company name is required";
@@ -111,7 +126,6 @@ const CompanyOnboardingForm = ({ token }: { token: string }) => {
         website: normalizedWebsite,
         xLink: normalizedXAccount,
       };
-      console.log(cData);
 
       await mutateAsync(cData);
     } catch (error) {
@@ -124,7 +138,7 @@ const CompanyOnboardingForm = ({ token }: { token: string }) => {
     }
   };
 
-  const handleInputChange = (field: keyof CompanyFormData, value: string) => {
+  const handleInputChange = (field: keyof CompanyFormData, value: string | File | null) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -138,6 +152,11 @@ const CompanyOnboardingForm = ({ token }: { token: string }) => {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    handleInputChange("logo", file);
+  };
+
   return (
     <div className="space-y-6 w-full">
       <div className="space-y-2 text-center">
@@ -147,7 +166,7 @@ const CompanyOnboardingForm = ({ token }: { token: string }) => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
         <div className="space-y-2">
           <Label htmlFor="name">Company Name *</Label>
           <Input
@@ -185,6 +204,18 @@ const CompanyOnboardingForm = ({ token }: { token: string }) => {
         </div>
 
         <div className="space-y-2">
+          <Label htmlFor="linkedin">Linkedin Profile (Optional)</Label>
+          <Input
+            id="linkedin"
+            value={formData.linkedin}
+            onChange={(e) => handleInputChange("linkedin", e.target.value)}
+            placeholder="https://www.linkedin.com/company/yourcompany"
+            disabled={isPending}
+          />
+          {errors.linkedin && <p className="text-sm text-destructive">{errors.linkedin}</p>}
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="xAccount">X (Twitter) Handle (Optional)</Label>
           <Input
             id="xAccount"
@@ -194,6 +225,19 @@ const CompanyOnboardingForm = ({ token }: { token: string }) => {
             disabled={isPending}
           />
           {errors.xLink && <p className="text-sm text-destructive">{errors.xLink}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="logo">Upload Logo</Label>
+          <Input
+            id="logo"
+            onChange={handleFileChange}
+            placeholder="Upload your logo"
+            type="file"
+            accept="images/*"
+            disabled={isPending}
+          />
+          {errors.logo && <p className="text-sm text-destructive">{errors.logo}</p>}
         </div>
 
         <div className="space-y-2">

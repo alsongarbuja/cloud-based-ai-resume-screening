@@ -8,10 +8,15 @@ import { ROUTES } from "@/config/routes";
 import { getUserProfile } from "@/lib/database/profile";
 import { UserType } from "@/types";
 import { getAuthToken } from "@/lib/server-only";
+import { redirect } from "next/navigation";
 
 const Navbar = async () => {
   const token = await getAuthToken();
   const user = await getUserProfile(token);
+
+  if (!user) {
+    redirect("/");
+  }
 
   return (
     <nav className="flex items-center justify-between py-6 border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">

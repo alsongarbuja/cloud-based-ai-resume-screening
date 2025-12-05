@@ -105,10 +105,7 @@ const JobSeekerOnboardingForm = ({ token, userId }: JobSeekerOnboardingFormProps
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Get the FileList object, and take the first file
     const file = e.target.files ? e.target.files[0] : null;
-
-    // Call the central handler with the field name and the File object
     handleInputChange("resume", file);
   };
 
@@ -142,6 +139,7 @@ const JobSeekerOnboardingForm = ({ token, userId }: JobSeekerOnboardingFormProps
             onChange={handleFileChange}
             placeholder="Upload your resume"
             type="file"
+            accept="application/pdf"
             disabled={isPending}
           />
           {errors.resume && <p className="text-sm text-destructive">{errors.resume}</p>}

@@ -4,7 +4,7 @@ export class CreateCompanyDto {
   address: string;
   website: string;
   linkedin: string;
-  xLink: string;
+  xLink?: string;
   createdBy: number;
   logo: string;
 }
