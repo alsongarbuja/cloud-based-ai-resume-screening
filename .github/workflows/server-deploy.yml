@@ -76,6 +76,9 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
           echo "CLIENT_URL=${{ secrets.CLIENT_URL }}" >> .env
 
+      - name: Copy env file to EC2
+        run: scp -o StrictHostKeyChecking=no .env ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/tmp/.env
+
       - name: Pull and Deploy container on EC2
         run: |
           SSH_HOST="${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}"
@@ -90,6 +93,6 @@ jobs:
 
           ssh "$SSH_HOST" "docker pull $ECR_URI"
 
-          ssh "$SSH_HOST" "docker run -d --restart always --name $CONTAINER_NAME -p 5000:5000 --env-file .env $ECR_URI"
+          ssh "$SSH_HOST" "docker run -d --restart always --name $CONTAINER_NAME -p 5000:5000 --env-file /tmp/.env $ECR_URI"
         env:
           AWS_REGIONS: ${{ secrets.AWS_REGION }}
