@@ -6,7 +6,7 @@ LABEL stage=build
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+COPY backend/package*.json ./
 
 RUN npm install -g pnpm
 
@@ -14,7 +14,7 @@ RUN npm install -g pnpm
 RUN pnpm install
 
 # Copy the rest of the application files
-COPY . .
+COPY backend/. .
 
 # Build the NestJS application
 RUN pnpm run build
