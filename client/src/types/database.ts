@@ -62,9 +62,10 @@ export interface Job {
 }
 
 export interface SavedJob {
-  id: string;
-  jobId: string;
-  userId: string;
+  id: number;
+  jobId: number;
+  job: Job;
+  userId: number;
   createdAt: Date;
   updatedAt: Date;
 }

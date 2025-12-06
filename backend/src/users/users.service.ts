@@ -27,6 +27,13 @@ export class UsersService {
     return this.userRepository.find();
   }
 
+  findWhere(where: Record<string, any>, relations: string[]) {
+    return this.userRepository.find({
+      where,
+      relations,
+    });
+  }
+
   findOne(id: number) {
     return this.userRepository.findOneBy({
       id,

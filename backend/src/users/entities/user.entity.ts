@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserType } from './user.enum';
+import { Saved } from 'src/saved/entities/saved.entity';
 
 @Entity()
 export class User {
@@ -46,6 +47,9 @@ export class User {
 
   @OneToOne(() => Company, (company) => company.createdBy)
   company: Company;
+
+  @OneToMany(() => Saved, (saved) => saved.user)
+  savedJobs: Saved[];
 
   @CreateDateColumn()
   createdAt: Date;

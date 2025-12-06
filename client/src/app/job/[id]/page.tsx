@@ -4,7 +4,7 @@ import { JobDetailContent } from "./job-detail-content";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getUserProfile } from "@/lib/database/profile";
 import { getAuthToken } from "@/lib/server-only";
-import { getJobById } from "@/lib/database/job";
+import { checkHasSaved, getJobById } from "@/lib/database/job";
 import { checkHasApplied } from "@/lib/database/applied";
 
 type Params = Promise<{ id: string }>;
@@ -49,12 +49,19 @@ export default async function JobDetailPage({ params }: { params: Params }) {
   const user = await getUserProfile(authToken);
   const job = await getJobById(+id);
   const hasApplied = await checkHasApplied(+id, authToken);
+  const hasSaved = await checkHasSaved(+id, authToken);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <Navbar />
       <Suspense fallback={<JobContentSkeleton />}>
-        <JobDetailContent job={job} token={authToken} user={user} hasApplied={hasApplied} />
+        <JobDetailContent
+          hasSaved={hasSaved}
+          job={job}
+          token={authToken}
+          user={user}
+          hasApplied={hasApplied}
+        />
       </Suspense>
     </div>
   );
