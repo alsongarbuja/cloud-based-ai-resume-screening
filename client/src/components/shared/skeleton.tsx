@@ -1,14 +1,7 @@
 import { cn } from "@/lib/utils";
 
-interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-function Skeleton({ className, ...props }: SkeletonProps) {
-  return (
-    <div
-      className={cn("animate-pulse rounded-md bg-muted", className)}
-      {...props}
-    />
-  );
+function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn("animate-pulse rounded-md bg-muted", className)} {...props} />;
 }
 
 const JobCardSkeleton = () => (
@@ -16,7 +9,7 @@ const JobCardSkeleton = () => (
     <div className="flex flex-col md:flex-row gap-4 md:gap-5">
       <div className="flex gap-3 md:block">
         <Skeleton className="size-14 rounded-xl" />
-        
+
         <div className="md:hidden flex-1 space-y-2">
           <Skeleton className="h-6 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
@@ -87,7 +80,7 @@ const TableSkeleton = ({ rows = 5, columns = 4 }: { rows?: number; columns?: num
           <Skeleton key={i} className="h-4 flex-1" />
         ))}
       </div>
-      
+
       {Array.from({ length: rows }).map((_, i) => (
         <div key={i} className="flex gap-4">
           {Array.from({ length: columns }).map((_, j) => (
@@ -136,13 +129,13 @@ const DashboardSkeleton = () => (
       <Skeleton className="h-8 w-48" />
       <Skeleton className="h-4 w-64" />
     </div>
-    
+
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {Array.from({ length: 4 }).map((_, i) => (
         <StatsCardSkeleton key={i} />
       ))}
     </div>
-    
+
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2">
         <TableSkeleton />
@@ -154,7 +147,7 @@ const DashboardSkeleton = () => (
   </div>
 );
 
-export { 
+export {
   Skeleton,
   JobCardSkeleton,
   JobListingSkeleton,
@@ -163,5 +156,5 @@ export {
   ProfileCardSkeleton,
   SearchBarSkeleton,
   StatsCardSkeleton,
-  DashboardSkeleton
+  DashboardSkeleton,
 };

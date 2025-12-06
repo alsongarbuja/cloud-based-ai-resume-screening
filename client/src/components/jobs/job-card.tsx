@@ -9,8 +9,8 @@ import { Badge } from "../ui/badge";
 import { RelativeTime } from "../ui/relative-time";
 import { formatCurrency } from "@/utils/format/currency";
 import { jobTypes } from "@/config/constants";
-import { Job } from "@/lib/database/firestore";
 import { getDynamicRoute } from "@/config/routes";
+import { Job } from "@/types";
 
 interface JobCardProps {
   job: Job;

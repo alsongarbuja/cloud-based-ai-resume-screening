@@ -4,8 +4,8 @@ import { memo } from "react";
 import Image from "next/image";
 import { Card, CardHeader } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { Job, User } from "@/lib/database/firestore";
 import Link from "next/link";
+import { User } from "@/types";
 
 interface JobCardProps {
   user: User;

@@ -28,10 +28,10 @@ interface LoadingProviderProps {
 export const LoadingProvider = ({ children }: LoadingProviderProps) => {
   const [globalLoading, setGlobalLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Loading...");
-  const [loadingOperations, setLoadingOperations] = useState<Set<string>>(new Set());
+  const [, setLoadingOperations] = useState<Set<string>>(new Set());
 
   const addLoadingOperation = (id: string) => {
-    setLoadingOperations(prev => {
+    setLoadingOperations((prev) => {
       const newSet = new Set(prev);
       newSet.add(id);
       setGlobalLoading(newSet.size > 0);
@@ -40,7 +40,7 @@ export const LoadingProvider = ({ children }: LoadingProviderProps) => {
   };
 
   const removeLoadingOperation = (id: string) => {
-    setLoadingOperations(prev => {
+    setLoadingOperations((prev) => {
       const newSet = new Set(prev);
       newSet.delete(id);
       setGlobalLoading(newSet.size > 0);

@@ -10,9 +10,9 @@ export const checkHasApplied = cache(async (id: number, token: string) => {
     });
     const data = await res.json();
 
-    return data as boolean;
+    return data as number;
   } catch (error) {
     logger.error(`Error while fetching job of id ${id} ${(error as Error)?.message}`);
-    return false;
+    return null;
   }
 });

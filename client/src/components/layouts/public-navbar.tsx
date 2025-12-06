@@ -3,15 +3,11 @@ import React from "react";
 import { buttonVariants } from "../ui/button";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { Logo } from "../ui/logo";
-// import { auth } from "@/lib/auth/config";
 import UserDropdownWrapper from "./user-dropdown-wrapper";
 import { ROUTES } from "@/config/routes";
 import { User, UserType } from "@/types";
 
 const PublicNavbar = async ({ user }: { user?: User }) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // const session = (await auth()) as any;
-
   return (
     <nav className="flex items-center justify-between py-6 border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="flex items-center gap-4">
