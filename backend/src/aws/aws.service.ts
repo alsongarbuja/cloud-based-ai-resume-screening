@@ -45,7 +45,7 @@ export class AwsService {
 
     try {
       await this.s3Client.send(new PutObjectCommand(uploadParams));
-      return `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${uniqueKey}`;
+      return `https://${this.bucketName}.s3.${this.configService.get('aws.region')}.amazonaws.com/${uniqueKey}`;
     } catch (error) {
       console.error('S3 Upload Error:', error);
       throw new InternalServerErrorException('Failed to upload file to S3.');
