@@ -1,0 +1,76 @@
+name: Deploy docker container to ECR and Run in EC2
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "backend/**"
+
+env:
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  build_and_push:
+    name: Build the project and Push to ECR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Building Tag, and Push image to ECR
+        run: |
+          docker build -t $ECR_REGISTERY/$ECR_REPOSITORY:$IMAGE_TAG -f backend/DockerFile backend/
+
+          docker tag $ECR_REPOSITORY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+  deploy_to_ec2:
+    name: Pull from EC2 and Run on EC2
+    needs: build_and_push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install SSH Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_PRIVATE_KEY }}
+
+      - name: Configure SSH known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Pull and Deploy container on EC2
+        run: |
+          SSH_HOST=${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}
+          ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:latest
+          CONTAINER_NAME=kaamAI-server
+
+          TOKEN=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }})
+          ssh $SSH_HOST "echo $TOKEN | docker login --username AWS --password-stdin $ECR_REGISTRY"
+
+          ssh $SSH_HOST "docker stop $CONTAINER_NAME || true"
+          ssh $SSH_HOST "docker run $CONTAINER_NAME || true"
+
+          ssh $SSH_HOST "docker pull $ECR_URI"
+
+          ssh $SSH_HOST "docker run -d --restart always --name $CONTAINER_NAME -p 5000:5000 $ECR_URI"
+        env:
+          AWS_REGIONS: ${{ secrets.AWS_REGION }}
