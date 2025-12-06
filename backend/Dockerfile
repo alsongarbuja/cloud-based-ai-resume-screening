@@ -8,14 +8,16 @@ WORKDIR /app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
+RUN npm install -g pnpm
+
 # Install the application dependencies
-RUN npm install
+RUN pnpm install
 
 # Copy the rest of the application files
 COPY . .
 
 # Build the NestJS application
-RUN npm run build
+RUN pnpm run build
 
 # --- STAGE 2: PRODUCTION (Use a minimal, secure runtime image) ---
 FROM node:20-slim AS production
