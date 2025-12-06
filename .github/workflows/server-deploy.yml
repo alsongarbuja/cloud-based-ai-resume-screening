@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - dev
-    paths:
-      - "backend/**"
+    # paths:
+    #   - "backend/**"
 
 env:
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
@@ -63,7 +63,7 @@ jobs:
           ECR_URI="$ECR_REGISTRY/$ECR_REPOSITORY:latest"
           CONTAINER_NAME="kaamAI-server"
 
-          TOKEN=$(ssh $SSH_HOST "aws ecr get-login-password --region ${{ secrets.AWS_REGION }}")
+          TOKEN=$(ssh $SSH_HOST "bash -l -c 'aws ecr get-login-password --region ${{ secrets.AWS_REGION }}'")
           ssh "$SSH_HOST" "echo $TOKEN | docker login --username AWS --password-stdin $ECR_REGISTRY"
 
           ssh "$SSH_HOST" "docker stop $CONTAINER_NAME || true"
