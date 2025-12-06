@@ -57,6 +57,25 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Create env file
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "OAUTH_GOOGLE_ID=${{ secrets.OAUTH_GOOGLE_ID }}" >> .env
+          echo "OAUTH_GOOGLE_SECRET=${{ secrets.OAUTH_GOOGLE_SECRET }}" >> .env
+          echo "OAUTH_GOOGLE_CALLBACK_URL=${{ secrets.OAUTH_GOOGLE_CALLBACK_URL }}" >> .env
+          echo "OAUTH_GOOGLE_SECRET=${{ secrets.OAUTH_GOOGLE_SECRET }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+          echo "AWS_BUCKET=${{ secrets.AWS_BUCKET_NAME }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "AWS_ACCESS_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "CLIENT_URL=${{ secrets.CLIENT_URL }}" >> .env
+
       - name: Pull and Deploy container on EC2
         run: |
           SSH_HOST="${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}"
@@ -71,6 +90,6 @@ jobs:
 
           ssh "$SSH_HOST" "docker pull $ECR_URI"
 
-          ssh "$SSH_HOST" "docker run -d --restart always --name $CONTAINER_NAME -p 5000:5000 $ECR_URI"
+          ssh "$SSH_HOST" "docker run -d --restart always --name $CONTAINER_NAME -p 5000:5000 --env-file .env $ECR_URI"
         env:
           AWS_REGIONS: ${{ secrets.AWS_REGION }}
