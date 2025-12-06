@@ -1,14 +1,13 @@
 import ApplicationCard from "@/components/jobs/application-card";
 import Navbar from "@/components/layouts/navbar";
 import { EmptyState } from "@/components/ui/empty-state";
-import { getMyApplications } from "@/lib/database/firestore-server";
+import { getMyApplications } from "@/lib/database/profile";
+import { getAuthToken } from "@/lib/server-only";
 import { FileText } from "lucide-react";
-import { cookies } from "next/headers";
 
 export default async function MyApplicationsPage() {
-  const cookieStore = cookies();
-  const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "auth-token");
-  const applications = await getMyApplications(authToken?.value || "");
+  const authToken = await getAuthToken();
+  const applications = await getMyApplications(authToken);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,9 +25,11 @@ export default async function MyApplicationsPage() {
             <ul>
               {applications.map((application) => (
                 <ApplicationCard
+                  applicationId={application.id}
                   key={application.id}
                   job={application.jobId}
                   status={application.status}
+                  token={authToken}
                 />
               ))}
             </ul>

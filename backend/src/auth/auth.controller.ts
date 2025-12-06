@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { GoogleOAuthGuard } from './guards/google.guard';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
@@ -46,7 +39,11 @@ export class AuthController {
       });
 
       res.redirect(
-        `${this.configService.get<string>('client.url')}/auth/callback?redirect=${user.redirectTo || '/'}`,
+        `${this.configService.get<string>('client.url')}${user.redirectTo || ''}`,
+      );
+    } else {
+      res.redirect(
+        `${this.configService.get<string>('client.url')}/auth/error`,
       );
     }
   }
@@ -62,9 +59,8 @@ export class AuthController {
       expires: new Date(0),
     });
 
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Successfully logged out.',
-    };
+    res.redirect(
+      this.configService.get<string>('client.url') || 'http://localhost:3000',
+    );
   }
 }

@@ -1,17 +1,14 @@
-// Public job listings page - no authentication required
-import { JobFilterSection, JobListing } from "@/components/jobs";
+import { JobFilterSection } from "@/components/jobs";
 import JobListingServer, { JobListingLoading } from "@/components/jobs/job-listing-server";
 import { PublicNavbar } from "@/components/layouts";
 import { Logo, FeatureCard, PricingCard } from "@/components/ui";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-// import { auth } from "@/lib/auth/config";
-import { isAdminSdkAvailable } from "@/lib/database/firebase-admin";
 import { Suspense } from "react";
 import { Briefcase, Users, Search, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/config/routes";
-import { cookies } from "next/headers";
 import { User } from "@/types";
+import { getAuthToken } from "@/lib/server-only";
 
 type SearchParams = {
   searchParams: Promise<{
@@ -22,10 +19,7 @@ type SearchParams = {
 };
 
 export default async function PublicJobListings({ searchParams }: SearchParams) {
-  // const session = await auth();
-  const cookieStore = cookies();
-
-  const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "");
+  const authToken = await getAuthToken();
 
   const isUserLoggedIn = !!authToken;
   let userData: User | null = null;
@@ -39,7 +33,7 @@ export default async function PublicJobListings({ searchParams }: SearchParams) 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile`, {
         headers: {
-          Cookie: `${process.env.AUTH_COOKIE_TOKEN_NAME || ""}=${authToken.value}`,
+          Cookie: `${process.env.AUTH_COOKIE_TOKEN_NAME || ""}=${authToken}`,
         },
       });
       const data = await res.json();
@@ -230,21 +224,12 @@ export default async function PublicJobListings({ searchParams }: SearchParams) 
 
           <div className="lg:col-span-2 flex flex-col gap-6">
             <Suspense fallback={<JobListingLoading />} key={filterKey}>
-              {/* {isAdminSdkAvailable ? (
-                <JobListingServer
-                  currentPage={currentPage}
-                  jobTypes={jobTypes}
-                  timePosted={timePosted}
-                  isPublic={true}
-                />
-              ) : ( */}
-              <JobListing
+              <JobListingServer
                 currentPage={currentPage}
                 jobTypes={jobTypes}
                 timePosted={timePosted}
                 isPublic={true}
               />
-              {/* )} */}
             </Suspense>
           </div>
         </div>

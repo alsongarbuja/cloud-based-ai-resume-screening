@@ -4,7 +4,6 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
 import { Repository } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class CompaniesService {
@@ -18,9 +17,7 @@ export class CompaniesService {
       ...createCompanyDto,
       createdBy: { id: createCompanyDto.createdBy },
     });
-    if (company.createdBy && company.createdBy.id) {
-      company.createdBy = { id: company.createdBy.id } as User;
-    }
+
     const savedCompany = this.companyRepository.insert(company);
     return savedCompany;
   }

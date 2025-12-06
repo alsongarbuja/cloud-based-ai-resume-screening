@@ -3,19 +3,38 @@
 import { memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Card, CardHeader } from "../ui/card";
+import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { Job } from "@/lib/database/firestore";
 import { getDynamicRoute } from "@/config/routes";
+import { Job } from "@/types";
+import { Button } from "../ui";
+import { useMutation } from "@tanstack/react-query";
 
 interface JobCardProps {
+  applicationId: number;
   job: Job;
   status: "applied" | "rejected" | "interviewing" | "archieved";
+  token: string;
 }
 
-const ApplicationCard = memo<JobCardProps>(({ job, status }) => {
+const ApplicationCard = memo<JobCardProps>(({ job, status, token, applicationId }) => {
   const jobRoute = getDynamicRoute.job(job.id);
   const href = jobRoute;
+
+  const { mutateAsync } = useMutation({
+    mutationKey: ["applied", "remove", applicationId],
+    mutationFn: async () => {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/applied/${applicationId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onSuccess: () => {
+      window.location.reload();
+    },
+  });
 
   const getStatusColor = (status: "applied" | "rejected" | "interviewing" | "archieved") => {
     switch (status) {
@@ -35,9 +54,9 @@ const ApplicationCard = memo<JobCardProps>(({ job, status }) => {
   }
 
   return (
-    <Link href={href} className="block group">
-      <Card className="relative border border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 overflow-hidden bg-card/50 backdrop-blur-sm">
-        <CardHeader className="p-5 md:p-6">
+    <div className="block group">
+      <Card className="relative cursor-default border border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 overflow-hidden bg-card/50 backdrop-blur-sm">
+        <CardContent className="p-5 md:p-6">
           <div className="flex flex-col md:flex-row gap-4 md:gap-5">
             <div className="flex gap-3 md:block">
               {job.createdBy.logo ? (
@@ -81,12 +100,26 @@ const ApplicationCard = memo<JobCardProps>(({ job, status }) => {
                 >
                   {status}
                 </Badge>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link href={href}>
+                    <Button variant={"ghost"} className="cursor-pointer">
+                      View Details
+                    </Button>
+                  </Link>
+                  <Button
+                    onClick={async () => await mutateAsync()}
+                    className="bg-red-500/10 cursor-pointer text-red-500 hover:bg-red-500/30"
+                  >
+                    Withdraw application
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </CardHeader>
+        </CardContent>
       </Card>
-    </Link>
+    </div>
   );
 });
 

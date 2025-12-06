@@ -21,14 +21,19 @@ export class JobsService {
     return savedJob;
   }
 
-  findAll() {
-    return this.jobRepository.find({
+  async findAll(filters?: Record<string, any>) {
+    const jobs = await this.jobRepository.find({
+      where: filters || {},
       relations: ['createdBy'],
     });
+    return jobs;
   }
 
   findOne(id: number) {
-    return this.jobRepository.findOneBy({ id });
+    return this.jobRepository.findOne({
+      where: { id },
+      relations: ['createdBy'],
+    });
   }
 
   async findWhere(companyId: number) {

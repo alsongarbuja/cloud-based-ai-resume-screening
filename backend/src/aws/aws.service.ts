@@ -33,20 +33,18 @@ export class AwsService {
     folder: string = 'resumes',
   ): Promise<string> {
     const fileExtension = file.originalname.split('.').pop();
-    const uniqueKey = `${folder}/${id}.${fileExtension}`;
+    const fileName = file.originalname.split('.').shift();
+    const uniqueKey = `${folder}/${fileName}_${id}.${fileExtension}`;
 
     const uploadParams: PutObjectCommandInput = {
       Bucket: this.bucketName,
       Key: uniqueKey,
       Body: file.buffer,
       ContentType: file.mimetype,
-      ACL: 'public-read',
     };
 
     try {
       await this.s3Client.send(new PutObjectCommand(uploadParams));
-
-      // Construct and return the public URL
       return `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${uniqueKey}`;
     } catch (error) {
       console.error('S3 Upload Error:', error);

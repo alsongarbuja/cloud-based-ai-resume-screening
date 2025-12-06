@@ -2,7 +2,7 @@ import { PredictButton } from "@/components/admin/predict-button";
 import ApplicationUserCard from "@/components/jobs/application-user-card";
 import Navbar from "@/components/layouts/navbar";
 import { EmptyState } from "@/components/ui/empty-state";
-import { getJobApplications, rankAppplicant } from "@/lib/database/firestore-server";
+import { getJobApplications, rankAppplicant } from "@/lib/database/profile";
 import { FileText } from "lucide-react";
 import { cookies } from "next/headers";
 

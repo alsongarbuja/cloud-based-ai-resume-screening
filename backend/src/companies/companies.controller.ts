@@ -8,24 +8,37 @@ import {
   Delete,
   UseGuards,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { Request } from 'express';
-import { User } from 'src/users/entities/user.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { AwsService } from 'src/aws/aws.service';
 
 @Controller('companies')
 export class CompaniesController {
-  constructor(private readonly companiesService: CompaniesService) {}
+  constructor(
+    private readonly companiesService: CompaniesService,
+    private readonly awsService: AwsService,
+  ) {}
 
   @Post()
   @UseGuards(JWTAuthGuard)
-  create(@Req() req: Request, @Body() createCompanyDto: CreateCompanyDto) {
+  @UseInterceptors(FileInterceptor('logo'))
+  async create(
+    @Req() req,
+    @Body() createCompanyDto: CreateCompanyDto,
+    @UploadedFile() file,
+  ) {
+    const userId: number = req.user.id;
+    const logoUrl = await this.awsService.uploadFile(file, userId, 'logos');
     return this.companiesService.create({
       ...createCompanyDto,
-      createdBy: (req?.user as User)?.id,
+      logo: logoUrl,
+      createdBy: userId,
     });
   }
 
