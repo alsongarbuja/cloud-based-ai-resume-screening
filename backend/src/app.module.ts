@@ -15,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
 import { AwsModule } from './aws/aws.module';
 import { AiModule } from './ai/ai.module';
 import { PdfModule } from './pdf/pdf.module';
+import { SavedModule } from './saved/saved.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -48,6 +49,7 @@ import configuration from './config/configuration';
     AwsModule,
     AiModule,
     PdfModule,
+    SavedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
