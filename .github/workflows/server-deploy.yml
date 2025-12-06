@@ -63,7 +63,7 @@ jobs:
           ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:latest
           CONTAINER_NAME=kaamAI-server
 
-          TOKEN=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }})
+          TOKEN=$(ssh $SSH_HOST "aws ecr get-login-password --region ${{ secrets.AWS_REGION }}"")
           ssh $SSH_HOST "echo $TOKEN | docker login --username AWS --password-stdin $ECR_REGISTRY"
 
           ssh $SSH_HOST "docker stop $CONTAINER_NAME || true"
