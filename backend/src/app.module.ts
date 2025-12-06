@@ -34,7 +34,7 @@ import configuration from './config/configuration';
         password: configService.get('database.password'),
         database: configService.get('database.name'),
         autoLoadEntities: true,
-        synchronize: true, // TODO: false in production
+        synchronize: true, // TODO: fix in next CI/CD pipeline
       }),
       inject: [ConfigService],
     }),
