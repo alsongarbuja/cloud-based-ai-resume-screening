@@ -15,6 +15,7 @@ import {
 } from 'typeorm';
 import { JobStatus, JobType } from './job.enum';
 import { Industry } from 'src/industry/entities/industry.entity';
+import { Saved } from 'src/saved/entities/saved.entity';
 
 @Entity()
 export class Job {
@@ -78,6 +79,9 @@ export class Job {
 
   @OneToOne(() => Result, (result) => result.job)
   result: Result;
+
+  @OneToMany(() => Saved, (saved) => saved.job)
+  savedByUsers: Saved[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { Applied, User } from "@/types";
+import { Applied, SavedJob, User } from "@/types";
 
 export const getUserProfile = cache(async (token: string): Promise<User | null> => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile`, {
@@ -22,6 +22,17 @@ export const getMyApplications = cache(async (token: string): Promise<Applied[] 
   if (!res.ok) return null;
   const data = await res.json();
   return data as Applied[];
+});
+
+export const getMySavedJobs = cache(async (token: string): Promise<SavedJob[] | null> => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/saved`, {
+    headers: {
+      Cookie: `auth-token=${token}`,
+    },
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data as SavedJob[];
 });
 
 export const getJobApplications = cache(

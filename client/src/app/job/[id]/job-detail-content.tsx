@@ -2,7 +2,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Building2, Calendar, DollarSign, Heart } from "lucide-react";
+import {
+  ArrowLeft,
+  MapPin,
+  Building2,
+  Calendar,
+  DollarSign,
+  Heart,
+  HeartCrackIcon,
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatCurrency } from "@/utils/format/currency";
@@ -11,16 +19,24 @@ import { getFlagEmoji } from "@/utils/countries";
 import { FormattedDate } from "@/components/ui/formatted-date";
 import { useMutation } from "@tanstack/react-query";
 import { Job, User } from "@/types";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 interface JobDetailContentProps {
   job: Job | undefined;
   token: string;
   user: User | null;
   hasApplied: number | null;
+  hasSaved: number | null;
 }
 
-export function JobDetailContent({ job, token, user, hasApplied }: JobDetailContentProps) {
+export function JobDetailContent({
+  job,
+  token,
+  user,
+  hasApplied,
+  hasSaved,
+}: JobDetailContentProps) {
+  const router = useRouter();
   const { mutateAsync } = useMutation({
     mutationKey: ["applied"],
     mutationFn: async (data: { jobId: number }) => {
@@ -70,6 +86,40 @@ export function JobDetailContent({ job, token, user, hasApplied }: JobDetailCont
     },
   });
 
+  const { mutateAsync: saveJob } = useMutation({
+    mutationKey: ["saved"],
+    mutationFn: async (data: { jobId: number }) => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/saved`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const d = await res.json();
+      return d;
+    },
+    onSuccess: () => {
+      redirect("/favorites");
+    },
+  });
+
+  const { mutateAsync: removeSavedJob } = useMutation({
+    mutationKey: ["saved", "remove", job?.id],
+    mutationFn: async (jobId: number) => {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/saved/${jobId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onSuccess() {
+      router.refresh();
+    },
+  });
+
   if (job) {
     const locationFlag = getFlagEmoji(job.location);
 
@@ -103,10 +153,27 @@ export function JobDetailContent({ job, token, user, hasApplied }: JobDetailCont
               {token && user && user.type === "user" && (
                 <>
                   {token ? (
-                    <Button variant="outline" className="shadow-none">
-                      <Heart className="size-4" />
-                      Save Job
-                    </Button>
+                    <>
+                      {" "}
+                      {hasSaved ? (
+                        <Button
+                          className="shadow-none bg-red-500/10 text-red-500 hover:bg-red-500/30"
+                          onClick={async () => removeSavedJob(job.id)}
+                        >
+                          <HeartCrackIcon className="size-4" />
+                          Remove from Saved
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          className="shadow-none"
+                          onClick={async () => saveJob({ jobId: job.id })}
+                        >
+                          <Heart className="size-4" />
+                          Save Job
+                        </Button>
+                      )}
+                    </>
                   ) : (
                     <Link href={`/login?redirect=/job/${job.id}`}>
                       <Button variant="outline" className="shadow-none">

@@ -15,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
 import { AwsModule } from './aws/aws.module';
 import { AiModule } from './ai/ai.module';
 import { PdfModule } from './pdf/pdf.module';
+import { SavedModule } from './saved/saved.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -33,7 +34,7 @@ import configuration from './config/configuration';
         password: configService.get('database.password'),
         database: configService.get('database.name'),
         autoLoadEntities: true,
-        synchronize: true, // TODO: false in production
+        synchronize: true, // TODO: fix in next CI/CD pipeline
       }),
       inject: [ConfigService],
     }),
@@ -48,6 +49,7 @@ import configuration from './config/configuration';
     AwsModule,
     AiModule,
     PdfModule,
+    SavedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
