@@ -1,5 +1,11 @@
 # KAAM AI server in NESTJS
 
+### Requirements
+
+> Node 20^
+
+> NestJS CLI (Optional but recommended)
+
 ### Local environment
 
 1. Set up the `.env` file

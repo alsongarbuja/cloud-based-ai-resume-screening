@@ -59,18 +59,18 @@ jobs:
 
       - name: Pull and Deploy container on EC2
         run: |
-          SSH_HOST=${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}
-          ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:latest
-          CONTAINER_NAME=kaamAI-server
+          SSH_HOST="${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}"
+          ECR_URI="$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+          CONTAINER_NAME="kaamAI-server"
 
           TOKEN=$(ssh $SSH_HOST "aws ecr get-login-password --region ${{ secrets.AWS_REGION }}")
-          ssh $SSH_HOST "echo $TOKEN | docker login --username AWS --password-stdin $ECR_REGISTRY"
+          ssh "$SSH_HOST" "echo $TOKEN | docker login --username AWS --password-stdin $ECR_REGISTRY"
 
-          ssh $SSH_HOST "docker stop $CONTAINER_NAME || true"
-          ssh $SSH_HOST "docker run $CONTAINER_NAME || true"
+          ssh "$SSH_HOST" "docker stop $CONTAINER_NAME || true"
+          ssh "$SSH_HOST" "docker rm $CONTAINER_NAME || true"
 
-          ssh $SSH_HOST "docker pull $ECR_URI"
+          ssh "$SSH_HOST" "docker pull $ECR_URI"
 
-          ssh $SSH_HOST "docker run -d --restart always --name $CONTAINER_NAME -p 5000:5000 $ECR_URI"
+          ssh "$SSH_HOST" "docker run -d --restart always --name $CONTAINER_NAME -p 5000:5000 $ECR_URI"
         env:
           AWS_REGIONS: ${{ secrets.AWS_REGION }}
