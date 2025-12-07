@@ -37,7 +37,7 @@ export function JobDetailContent({
   hasSaved,
 }: JobDetailContentProps) {
   const router = useRouter();
-  const { mutateAsync } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationKey: ["applied"],
     mutationFn: async (data: { jobId: number }) => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/applied`, {
@@ -71,7 +71,7 @@ export function JobDetailContent({
     },
   });
 
-  const { mutateAsync: withdrawApplication } = useMutation({
+  const { mutateAsync: withdrawApplication, isPending: isWithdrawPending } = useMutation({
     mutationKey: ["applied", "remove", hasApplied],
     mutationFn: async (id: number) => {
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/applied/${id}`, {
@@ -267,20 +267,22 @@ export function JobDetailContent({
                         onClick={async () => {
                           await withdrawApplication(hasApplied);
                         }}
+                        disabled={isWithdrawPending}
                         className="bg-red-500/10 cursor-pointer text-red-500 hover:bg-red-500/30"
                       >
-                        Withdraw application
+                        {isWithdrawPending ? "Withdrawing..." : "Withdraw application"}
                       </Button>
                     ) : (
                       <Button
                         className="w-full"
+                        disabled={isPending}
                         onClick={async () => {
                           await mutateAsync({
                             jobId: job.id,
                           });
                         }}
                       >
-                        Apply Now
+                        {isPending ? "Applying..." : "Apply Now"}
                       </Button>
                     )}
                   </>
