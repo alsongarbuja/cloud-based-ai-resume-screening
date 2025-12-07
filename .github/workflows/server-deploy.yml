@@ -79,6 +79,7 @@ jobs:
           echo "AWS_ACCESS_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
           echo "CLIENT_URL=${{ secrets.CLIENT_URL }}" >> .env
+          echo "CORS_ORIGINS=${{ secrets.CORS_ORIGINS }}" >> .env
 
       - name: Copy env file to EC2
         run: scp -o StrictHostKeyChecking=no .env ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/tmp/.env
