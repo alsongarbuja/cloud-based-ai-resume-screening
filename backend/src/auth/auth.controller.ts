@@ -28,7 +28,7 @@ export class AuthController {
     const u = await this.authService.signIn(signInDto.email, signInDto.pass);
     const token = await this.authService.generateToken(u);
 
-    res.cookie('auth-token', token, {
+    res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -48,7 +48,7 @@ export class AuthController {
     const u = await this.authService.signUp(registerDto);
     const token = await this.authService.generateToken(u);
 
-    res.cookie('auth-token', token, {
+    res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -78,7 +78,9 @@ export class AuthController {
     const token = await this.authService.generateToken(u as User);
 
     if (token) {
-      res.cookie('auth-token', token, {
+      console.log(token); // TODO: remove in later push
+
+      res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -97,7 +99,7 @@ export class AuthController {
 
   @Get('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    res.cookie('auth-token', '', {
+    res.cookie(process.env.COOKIE_NAME || 'auth-token', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
