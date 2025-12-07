@@ -24,7 +24,7 @@ FROM node:20-slim AS production
 LABEL stage=production
 
 ENV NODE_ENV production
-ENV PORT 3000
+ENV PORT 5000
 
 WORKDIR /usr/src/app
 
