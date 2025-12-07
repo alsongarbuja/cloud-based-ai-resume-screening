@@ -9,7 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
 
-  const allowedOriginString = process.env.CROS_ORIGINS || '';
+  const allowedOriginString = process.env.CORS_ORIGINS || '';
   const allowedOrigins = allowedOriginString.split(',').filter(Boolean);
 
   app.enableCors({
