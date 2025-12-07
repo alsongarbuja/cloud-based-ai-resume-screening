@@ -36,6 +36,14 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Setup pnpm Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('backend/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
       - name: Building Tag, and Push image to ECR
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f backend/Dockerfile .
@@ -80,6 +88,7 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
           echo "CLIENT_URL=${{ secrets.CLIENT_URL }}" >> .env
           echo "CORS_ORIGINS=${{ secrets.CORS_ORIGINS }}" >> .env
+          echo "COOKIE_NAME=${{ secrets.COOKIE_NAME }}" >> .env
 
       - name: Copy env file to EC2
         run: scp -o StrictHostKeyChecking=no .env ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/tmp/.env

@@ -11,7 +11,7 @@ COPY backend/package*.json ./
 RUN npm install -g pnpm
 
 # Install the application dependencies
-RUN pnpm install
+RUN pnpm install --no-cache
 
 # Copy the rest of the application files
 COPY backend/. .
