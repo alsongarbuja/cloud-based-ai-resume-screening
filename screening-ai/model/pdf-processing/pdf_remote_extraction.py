@@ -1,5 +1,6 @@
 import re
 import sys
+import json
 import string
 import requests
 from pypdf import PdfReader
@@ -48,43 +49,34 @@ def clean_resume_text(text):
 
     return " ".join(tokens)
 
-def extract_text_from_remote_pdf(pdf_url):
-    """
-    Downloads PDF content from a remote URL and extracts text using in-memory processing.
-    """
-    try:
-        # 1. Download the PDF content (as bytes)
-        response = requests.get(pdf_url, timeout=10) # Set a timeout
-        response.raise_for_status() # Raise exception for bad status codes (4xx or 5xx)
-
-        # 2. Create an in-memory file-like object (BytesIO) from the downloaded content
-        pdf_bytes = BytesIO(response.content)
-
-        # 3. Pass the in-memory object to PdfReader
-        # PdfReader can read from a file path OR a file-like object (like BytesIO)
-        reader = PdfReader(pdf_bytes)
-        full_text = ""
-
-        for page in reader.pages:
-            full_text += page.extract_text() + "\n"
-
-        return clean_resume_text(full_text)
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error downloading or connecting to URL {pdf_url}: {e}")
-        return ""
-    except Exception as e:
-        print(f"Error processing pdf {pdf_url}: {e}")
-        return ""
-
-if __name__ == "__main__":
-  # The input argument passed from NestJS (sys.argv[1])
-  input_arg = sys.argv[1]
-
+def lambda_handler(event, context):
   try:
-    extracted_text = extract_text_from_remote_pdf(input_arg)
-    print(extracted_text)
+    target_url = event.get('url')
+    if not target_url:
+        return { 'statusCode': 400, 'body': 'Missing URL' }
+
+    response = requests.get(target_url, timeout=10)
+    response.raise_for_status()
+
+    pdf_bytes = BytesIO(response.content)
+
+    reader = PdfReader(pdf_bytes)
+    full_text = ""
+
+    for page in reader.pages:
+        full_text += page.extract_text() + "\n"
+
+    cleaned_data = clean_resume_text(full_text)
+
+    return {
+      'statusCode': 200,
+      'body': json.dumps({
+        'message': 'Success',
+        'cleaned_text': cleaned_data,
+      })
+    }
   except Exception as e:
-    # Print errors to stderr
-    print(f"Error during execution: {e}", file=sys.stderr)
-    sys.exit(1)
+    return {
+      'statusCode': 500,
+      'body': json.dumps({ 'error': str(e) })
+    }
