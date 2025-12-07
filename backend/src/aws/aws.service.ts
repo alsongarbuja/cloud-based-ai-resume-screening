@@ -1,3 +1,4 @@
+import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import {
   PutObjectCommand,
   PutObjectCommandInput,
@@ -13,6 +14,7 @@ interface UploadFile extends Express.Multer.File {
 @Injectable()
 export class AwsService {
   private s3Client: S3Client;
+  private lambdaClient: LambdaClient;
   private bucketName: string;
 
   constructor(private readonly configService: ConfigService) {
@@ -24,6 +26,10 @@ export class AwsService {
         accessKeyId: configService.getOrThrow('aws.accessId'),
         secretAccessKey: configService.getOrThrow('aws.secretAccessKey'),
       },
+    });
+
+    this.lambdaClient = new LambdaClient({
+      region: configService.getOrThrow('aws.region'),
     });
   }
 
@@ -49,6 +55,30 @@ export class AwsService {
     } catch (error) {
       console.error('S3 Upload Error:', error);
       throw new InternalServerErrorException('Failed to upload file to S3.');
+    }
+  }
+
+  async processPdf(url: string) {
+    const command = new InvokeCommand({
+      FunctionName: 'pdf-processor',
+      InvocationType: 'RequestResponse',
+      Payload: JSON.stringify({ url }),
+    });
+
+    try {
+      const response = await this.lambdaClient.send(command);
+      const responsePayload = JSON.parse(
+        new TextDecoder().decode(response.Payload),
+      );
+
+      if (responsePayload.statusCode !== 200) {
+        throw new Error(`Lambda Error: ${responsePayload.body}`);
+      }
+
+      return JSON.parse(responsePayload.body);
+    } catch (error) {
+      console.error('Error triggering process pdf lambda', error);
+      throw error;
     }
   }
 }
