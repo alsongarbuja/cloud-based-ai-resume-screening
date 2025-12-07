@@ -14,7 +14,6 @@ import { IndustryModule } from './industry/industry.module';
 import { AuthModule } from './auth/auth.module';
 import { AwsModule } from './aws/aws.module';
 import { AiModule } from './ai/ai.module';
-import { PdfModule } from './pdf/pdf.module';
 import { SavedModule } from './saved/saved.module';
 import configuration from './config/configuration';
 
@@ -48,7 +47,6 @@ import configuration from './config/configuration';
     AuthModule,
     AwsModule,
     AiModule,
-    PdfModule,
     SavedModule,
   ],
   controllers: [AppController],

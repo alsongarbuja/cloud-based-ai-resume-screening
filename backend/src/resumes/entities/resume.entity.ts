@@ -21,6 +21,11 @@ export class Resume {
   @Column()
   resumeLink: string;
 
+  @Column({
+    type: 'text',
+  })
+  cleanResumeText: string;
+
   @OneToOne(() => User, (user) => user.resume)
   @JoinColumn({ name: 'uploadedBy' })
   uploadedBy: User;

@@ -34,10 +34,14 @@ export class ResumesController {
     @UploadedFile() file,
   ) {
     const userId: number = req.user.id;
-    const resumeUrl = await this.awsService.uploadFile(file, userId, 'resumes');
+    const resumeUrl =
+      'https://kaam-ai.s3.us-east-1.amazonaws.com/resumes/Alson_Garbuja_Resume_2025_3.pdf';
+    // const resumeUrl = await this.awsService.uploadFile(file, userId, 'resumes');
+    const cleanedTextData = await this.awsService.processPdf(resumeUrl);
     return this.resumesService.create({
       ...createResumeDto,
       resumeLink: resumeUrl,
+      cleanedResumeText: cleanedTextData.cleaned_text,
     });
   }
 
