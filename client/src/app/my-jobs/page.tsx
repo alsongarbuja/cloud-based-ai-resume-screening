@@ -1,9 +1,6 @@
 import Navbar from "@/components/layouts/navbar";
-// import { redirect } from "next/navigation";
-// import { getJobsByCompanyId } from "@/lib/database/firestore";
 import CompanyJobListings from "@/components/jobs/company-job-listings";
 import { cookies } from "next/headers";
-// import { ROUTES, getDynamicRoute } from "@/config/routes";
 
 export default async function MyJobsPage() {
   const cookieStore = cookies();

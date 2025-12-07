@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { UserType } from './entities/user.enum';
 
 @Injectable()
 export class UsersService {
@@ -18,7 +19,7 @@ export class UsersService {
     user.username = createUserDto.username;
     user.email = createUserDto.email;
     user.profilePic = createUserDto.profilePic;
-    user.type = createUserDto.type;
+    user.type = createUserDto.type as UserType;
     if (createUserDto.password) {
       user.password = createUserDto.password;
     }

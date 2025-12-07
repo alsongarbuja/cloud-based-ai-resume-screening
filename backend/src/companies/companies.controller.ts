@@ -17,6 +17,8 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from 'src/aws/aws.service';
+import { Roles } from 'src/decorators/roles.decorator';
+import { UserType } from 'src/users/entities/user.enum';
 
 @Controller('companies')
 export class CompaniesController {
@@ -27,6 +29,7 @@ export class CompaniesController {
 
   @Post()
   @UseGuards(JWTAuthGuard)
+  @Roles(UserType.ORG)
   @UseInterceptors(FileInterceptor('logo'))
   async create(
     @Req() req,
@@ -42,22 +45,21 @@ export class CompaniesController {
     });
   }
 
-  @Get()
-  findAll() {
-    return this.companiesService.findAll();
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.companiesService.findOne(+id);
   }
 
   @Patch(':id')
+  @UseGuards(JWTAuthGuard)
+  @Roles(UserType.ORG)
   update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
     return this.companiesService.update(+id, updateCompanyDto);
   }
 
   @Delete(':id')
+  @UseGuards(JWTAuthGuard)
+  @Roles(UserType.ORG)
   remove(@Param('id') id: string) {
     return this.companiesService.remove(+id);
   }

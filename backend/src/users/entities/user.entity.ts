@@ -29,7 +29,7 @@ export class User {
     enum: UserType,
     default: UserType.USER,
   })
-  type: string;
+  type: UserType;
 
   @Column({
     nullable: true,

@@ -18,6 +18,8 @@ import { UpdateJobDto } from './dto/update-job.dto';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CompaniesService } from 'src/companies/companies.service';
 import { User } from 'src/users/entities/user.entity';
+import { Roles } from 'src/decorators/roles.decorator';
+import { UserType } from 'src/users/entities/user.enum';
 
 @Controller('jobs')
 export class JobsController {
@@ -28,6 +30,7 @@ export class JobsController {
 
   @Post()
   @UseGuards(JWTAuthGuard)
+  @Roles(UserType.ORG)
   async create(@Req() req, @Body() createJobDto: CreateJobDto) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const company = await this.companyService.findWhere((req.user as User).id);
@@ -66,6 +69,7 @@ export class JobsController {
 
   @Get('mine')
   @UseGuards(JWTAuthGuard)
+  @Roles(UserType.ORG)
   async findMine(@Req() req) {
     const company = await this.companyService.findWhere((req.user as User).id);
     if (!company) {
@@ -84,11 +88,15 @@ export class JobsController {
   }
 
   @Patch(':id')
+  @UseGuards(JWTAuthGuard)
+  @Roles(UserType.ORG)
   update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
     return this.jobsService.update(+id, updateJobDto);
   }
 
   @Delete(':id')
+  @UseGuards(JWTAuthGuard)
+  @Roles(UserType.ORG)
   remove(@Param('id') id: string) {
     return this.jobsService.remove(+id);
   }

@@ -13,6 +13,7 @@ export default () => ({
     callbackUrl: process.env.OAUTH_GOOGLE_CALLBACK_URL,
     jwtSecret: process.env.JWT_SECRET,
     domain: process.env.DOMAIN,
+    cookieName: process.env.COOKIE_NAME || 'auth-token',
   },
   aws: {
     bucketName: process.env.AWS_BUCKET_NAME,

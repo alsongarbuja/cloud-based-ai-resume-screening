@@ -11,6 +11,8 @@ import {
 import { SavedService } from './saved.service';
 import { CreateSavedDto } from './dto/create-saved.dto';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { UserType } from 'src/users/entities/user.enum';
 
 @Controller('saved')
 export class SavedController {
@@ -18,14 +20,10 @@ export class SavedController {
 
   @Post()
   @UseGuards(JWTAuthGuard)
+  @Roles(UserType.USER)
   create(@Req() req, @Body() createSavedDto: CreateSavedDto) {
     const userId: number = req.user.id;
     return this.savedService.create(createSavedDto, userId);
-  }
-
-  @Get()
-  findAll() {
-    return this.savedService.findAll();
   }
 
   @Get(':id')
@@ -35,6 +33,7 @@ export class SavedController {
 
   @Delete(':jobId')
   @UseGuards(JWTAuthGuard)
+  @Roles(UserType.USER)
   remove(@Req() req, @Param('jobId') jobId: string) {
     const userId: number = req.user.id;
     return this.savedService.remove(+jobId, userId);

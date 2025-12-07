@@ -20,10 +20,6 @@ export class SavedService {
     return createdSavedJob;
   }
 
-  findAll() {
-    return `This action returns all saved`;
-  }
-
   findWhere(where: Record<string, any>, relations: string[]) {
     return this.savedRepository.find({
       where,

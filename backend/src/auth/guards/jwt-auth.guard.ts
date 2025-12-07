@@ -8,7 +8,7 @@ export class JWTAuthGuard extends AuthGuard('jwt') {
     const request: Request = context.switchToHttp().getRequest();
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const token = request.cookies['auth-token'];
+    const token = request.cookies[process.env.COOKIE_NAME || 'auth-token'];
 
     if (token) {
       request.headers.authorization = `Bearer ${token}`;

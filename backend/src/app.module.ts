@@ -16,6 +16,8 @@ import { AwsModule } from './aws/aws.module';
 import { AiModule } from './ai/ai.module';
 import { SavedModule } from './saved/saved.module';
 import configuration from './config/configuration';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
@@ -50,7 +52,13 @@ import configuration from './config/configuration';
     SavedModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {
   constructor(private datasource: DataSource) {}
