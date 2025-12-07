@@ -5,8 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { Chrome } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { ROUTES, getDynamicRoute } from "@/config/routes";
+import { User } from "@/types";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { Input } from "../ui";
 
 interface RegisterFormProps {
   searchParams?: {
@@ -17,6 +21,8 @@ interface RegisterFormProps {
   };
 }
 
+type RegisterUser = Pick<User, "email" | "password" | "username">;
+
 const RegisterForm = ({ searchParams }: RegisterFormProps) => {
   const [userType, setUserType] = useState<"user" | "org" | null>(null);
   const router = useRouter();
@@ -25,6 +31,84 @@ const RegisterForm = ({ searchParams }: RegisterFormProps) => {
   const isNewUser = searchParams?.new === "true";
   const error = searchParams?.error;
   const email = searchParams?.email;
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["register"],
+    mutationFn: async (user: RegisterUser) => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/register`, {
+        method: "POST",
+        body: JSON.stringify({
+          ...user,
+          type: userType,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const data = await res.json();
+      return data;
+    },
+    onSuccess(data) {
+      if (data && data.message === "Registered successfully") {
+        redirect("/onboarding");
+      }
+    },
+    onError(error) {
+      console.error(error);
+    },
+  });
+  const [formData, setFormData] = useState<RegisterUser>({
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState<Partial<RegisterUser>>({});
+  const { toast } = useToast();
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<RegisterUser> = {};
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors in the form",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await mutateAsync(formData);
+    // try {
+    // } catch (error) {
+    //   console.error("Job seeker onboarding error:", error);
+    //   toast({
+    //     title: "Setup Error",
+    //     description: "Failed to set up your profile. Please try again.",
+    //     variant: "destructive",
+    //   });
+    // }
+  };
+
+  const handleInputChange = (field: keyof RegisterUser, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: undefined,
+      }));
+    }
+  };
 
   useEffect(() => {}, [redirectTo, router, isNewUser]);
 
@@ -102,6 +186,54 @@ const RegisterForm = ({ searchParams }: RegisterFormProps) => {
           </button>
         </div>
       </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            value={formData.email}
+            onChange={(e) => handleInputChange("email", e.target.value)}
+            placeholder="Enter your email"
+            type="email"
+            required={true}
+            disabled={isPending}
+          />
+          {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="username">Username</Label>
+          <Input
+            id="username"
+            value={formData.username}
+            onChange={(e) => handleInputChange("username", e.target.value)}
+            placeholder="Enter your username"
+            required={true}
+            disabled={isPending}
+          />
+          {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            onChange={(e) => handleInputChange("password", e.target.value)}
+            placeholder="Enter your password"
+            type="password"
+            required={true}
+            disabled={isPending}
+          />
+          {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+        </div>
+
+        <Button type="submit" disabled={isPending || !userType} className="w-full" size="lg">
+          {isPending ? "Registering..." : "Register"}
+        </Button>
+      </form>
+
+      <p className="my-4">OR</p>
 
       <div className="space-y-3 pt-2">
         <Button

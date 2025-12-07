@@ -19,6 +19,9 @@ export class UsersService {
     user.email = createUserDto.email;
     user.profilePic = createUserDto.profilePic;
     user.type = createUserDto.type;
+    if (createUserDto.password) {
+      user.password = createUserDto.password;
+    }
 
     return this.userRepository.save(user);
   }
@@ -32,6 +35,10 @@ export class UsersService {
       where,
       relations,
     });
+  }
+
+  findByEmail(email: string) {
+    return this.userRepository.findOneBy({ email });
   }
 
   findOne(id: number) {
