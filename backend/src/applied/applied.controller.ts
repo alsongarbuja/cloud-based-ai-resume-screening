@@ -15,6 +15,8 @@ import { CreateAppliedDto } from './dto/create-applied.dto';
 import { UpdateAppliedDto } from './dto/update-applied.dto';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ResumesService } from 'src/resumes/resumes.service';
+import { UserType } from 'src/users/entities/user.enum';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @Controller('applied')
 export class AppliedController {
@@ -25,6 +27,7 @@ export class AppliedController {
 
   @Post()
   @UseGuards(JWTAuthGuard)
+  @Roles(UserType.USER)
   async create(@Req() req, @Body() createAppliedDto: CreateAppliedDto) {
     const resume = await this.resumeService.findByUserId(req.user.id);
     if (!resume) {
@@ -40,16 +43,12 @@ export class AppliedController {
 
   @Get('job/:jobId')
   @UseGuards(JWTAuthGuard)
+  @Roles(UserType.ORG)
   async getJobApplications(@Param('jobId') jobId: string) {
     const applications = await this.appliedService.findWhere({
       jobId: { id: +jobId },
     });
     return applications;
-  }
-
-  @Get()
-  findAll() {
-    return this.appliedService.findAll();
   }
 
   @Get(':id')
@@ -64,6 +63,7 @@ export class AppliedController {
 
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
+  @Roles(UserType.USER)
   remove(@Param('id') id: string) {
     return this.appliedService.remove(+id);
   }

@@ -22,10 +22,6 @@ export class CompaniesService {
     return savedCompany;
   }
 
-  findAll() {
-    return this.companyRepository.find();
-  }
-
   findOne(id: number) {
     return this.companyRepository.findOneBy({ id });
   }
