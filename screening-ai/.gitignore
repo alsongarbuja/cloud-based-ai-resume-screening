@@ -1,0 +1,6 @@
+*.zip
+
+__pycache__/
+
+model/pdf-processing/*
+!model/pdf-processing/pdf_remote_extraction.py
