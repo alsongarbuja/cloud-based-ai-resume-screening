@@ -34,7 +34,6 @@ export class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        path: '/',
         maxAge: 1000 * 60 * 5,
       });
 
@@ -54,8 +53,6 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      domain: this.configService.get<string>('oauth.domain') || 'localhost',
-      path: '/',
       expires: new Date(0),
     });
 
