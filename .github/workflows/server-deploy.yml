@@ -1,6 +1,7 @@
 name: Deploy docker container to ECR and Run in EC2
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - main
