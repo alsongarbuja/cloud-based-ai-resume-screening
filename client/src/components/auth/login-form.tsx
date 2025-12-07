@@ -2,15 +2,98 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import Google from "@/assets/svg/Google";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ROUTES, getDynamicRoute } from "@/config/routes";
+import { Button, Input, Label } from "../ui";
+import { useMutation } from "@tanstack/react-query";
+import { User } from "@/types";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const LoginForm = () => {
   const searchParams = useSearchParams();
 
   const redirectTo = searchParams.get("redirect") || ROUTES.HOME;
   const error = searchParams.get("error");
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["login"],
+    mutationFn: async (user: Pick<User, "email" | "password">) => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`, {
+        method: "POST",
+        body: JSON.stringify({
+          email: user.email,
+          pass: user.password,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const data = await res.json();
+      return data;
+    },
+    onSuccess(data) {
+      if (data && data.message === "Login successful") {
+        redirect("/");
+      }
+    },
+    onError(error) {
+      console.error(error);
+    },
+  });
+  const [formData, setFormData] = useState<Pick<User, "email" | "password">>({
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState<Partial<Pick<User, "email" | "password">>>({});
+  const { toast } = useToast();
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<Pick<User, "email" | "password">> = {};
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors in the form",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await mutateAsync(formData);
+    // try {
+    // } catch (error) {
+    //   console.error("Job seeker onboarding error:", error);
+    //   toast({
+    //     title: "Setup Error",
+    //     description: "Failed to set up your profile. Please try again.",
+    //     variant: "destructive",
+    //   });
+    // }
+  };
+
+  const handleInputChange = (field: keyof Pick<User, "email" | "password">, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: undefined,
+      }));
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -47,6 +130,39 @@ const LoginForm = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-6 pb-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                placeholder="Enter your email"
+                type="email"
+                required={true}
+                disabled={isPending}
+              />
+              {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                onChange={(e) => handleInputChange("password", e.target.value)}
+                placeholder="Enter your password"
+                type="password"
+                required={true}
+                disabled={isPending}
+              />
+              {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+            </div>
+
+            <Button type="submit" disabled={isPending} className="w-full" size="lg">
+              {isPending ? "Logging in..." : "Log in"}
+            </Button>
+          </form>
+          <p className="my-4">OR</p>
           <div className="flex flex-col gap-3">
             <button
               onClick={() => {

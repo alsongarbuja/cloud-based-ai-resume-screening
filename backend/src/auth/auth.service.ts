@@ -1,7 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
+import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -9,6 +15,28 @@ export class AuthService {
     private userService: UsersService,
     private jwtService: JwtService,
   ) {}
+
+  async signIn(email: string, pass: string) {
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    const match = await bcrypt.compare(pass, user.password);
+    if (!match) {
+      throw new UnauthorizedException();
+    }
+    return user;
+  }
+
+  async signUp(registerDto: Record<string, string>) {
+    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const user = await this.userService.create({
+      ...registerDto,
+      password: hashedPassword,
+      profilePic: `https://api.dicebear.com/9.x/initials/svg?seed=${registerDto.username}`,
+    } as CreateUserDto);
+    return user;
+  }
 
   async validateUser(user: Partial<User>): Promise<Partial<User>> {
     let userData = await this.userService.validateUser(user.email!);

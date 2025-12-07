@@ -1,4 +1,12 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { GoogleOAuthGuard } from './guards/google.guard';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +19,46 @@ export class AuthController {
     private authService: AuthService,
     private configService: ConfigService,
   ) {}
+
+  @Post('login')
+  async signIn(
+    @Res() res: Response,
+    @Body() signInDto: Record<string, string>,
+  ) {
+    const u = await this.authService.signIn(signInDto.email, signInDto.pass);
+    const token = await this.authService.generateToken(u);
+
+    res.cookie('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 5,
+    });
+
+    return res.json({
+      message: 'Login successful',
+    });
+  }
+
+  @Post('register')
+  async signUp(
+    @Res() res: Response,
+    @Body() registerDto: Record<string, string>,
+  ) {
+    const u = await this.authService.signUp(registerDto);
+    const token = await this.authService.generateToken(u);
+
+    res.cookie('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 5,
+    });
+
+    return res.json({
+      message: 'Registered successfully',
+    });
+  }
 
   @Get('google')
   @UseGuards(GoogleOAuthGuard)
