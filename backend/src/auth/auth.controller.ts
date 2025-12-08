@@ -109,8 +109,7 @@ export class AuthController {
     // });
 
     res.redirect(
-      this.configService.get<string>('client.url') + '/auth/logout-callback' ||
-        'http://localhost:3000/auth/logout-callback',
+      this.configService.get<string>('client.url') + '/auth/logout-callback',
     );
   }
 }

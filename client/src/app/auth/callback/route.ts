@@ -10,6 +10,11 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/auth/error", request.url));
   }
 
+  const host = request.headers.get("host");
+  const baseUrl = host
+    ? `https://${host}`
+    : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
   (await cookies()).set({
     name: process.env.AUTH_COOKIE_TOKEN_NAME || "kaam-ai-auth-token",
     value: token,
@@ -20,5 +25,5 @@ export async function GET(request: Request) {
     maxAge: 60 * 60,
   });
 
-  return NextResponse.redirect(new URL(redirectTo, request.url));
+  return NextResponse.redirect(new URL(redirectTo, baseUrl));
 }
