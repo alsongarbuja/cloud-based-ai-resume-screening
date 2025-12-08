@@ -1,8 +1,10 @@
-import { Job } from 'src/jobs/entities/job.entity';
+import { User } from 'src/users/entities/user.entity';
 import {
+  Column,
   CreateDateColumn,
   Entity,
-  OneToOne,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,10 +14,24 @@ export class Result {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // rankings
+  @Column()
+  jobId: number;
 
-  @OneToOne(() => Job, (job) => job.result)
-  job: Job;
+  @Column()
+  rank: number;
+
+  @Column()
+  score: number;
+
+  @Column()
+  resumeLink: string;
+
+  @Column()
+  userId: number;
+
+  @ManyToOne(() => User, (user) => user.results)
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
   @CreateDateColumn()
   createdAt: Date;

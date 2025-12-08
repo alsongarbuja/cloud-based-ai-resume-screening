@@ -26,8 +26,11 @@ export class Resume {
   // })
   // cleanResumeText: string;
 
+  @Column({ name: 'uploadedBy' })
+  uploadedById: number;
+
   @OneToOne(() => User, (user) => user.resume)
-  @JoinColumn({ name: 'uploadedBy' })
+  @JoinColumn({ name: 'uploadedBy', referencedColumnName: 'id' })
   uploadedBy: User;
 
   @OneToOne(() => Applied, (applied) => applied.usedResume)

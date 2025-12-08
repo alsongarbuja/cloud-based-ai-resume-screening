@@ -1,6 +1,5 @@
 import { Applied } from 'src/applied/entities/applied.entity';
 import { Company } from 'src/companies/entities/company.entity';
-import { Result } from 'src/results/entities/result.entity';
 import {
   Column,
   CreateDateColumn,
@@ -9,7 +8,6 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -76,9 +74,6 @@ export class Job {
   @ManyToOne(() => Company, (company) => company.jobs)
   @JoinColumn({ name: 'createdBy' })
   createdBy: Company;
-
-  @OneToOne(() => Result, (result) => result.job)
-  result: Result;
 
   @OneToMany(() => Saved, (saved) => saved.job)
   savedByUsers: Saved[];
