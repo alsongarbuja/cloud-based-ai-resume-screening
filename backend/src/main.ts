@@ -7,6 +7,8 @@ dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
   app.use(cookieParser());
 
   const allowedOriginString = process.env.CORS_ORIGINS || '';
