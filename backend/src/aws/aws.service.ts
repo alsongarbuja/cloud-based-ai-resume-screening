@@ -81,4 +81,28 @@ export class AwsService {
       throw error;
     }
   }
+
+  async predict(job_description: string) {
+    const command = new InvokeCommand({
+      FunctionName: 'resume-ranking-function',
+      InvocationType: 'RequestResponse',
+      Payload: JSON.stringify({ job_description }),
+    });
+
+    try {
+      const response = await this.lambdaClient.send(command);
+      const responsePayload = JSON.parse(
+        new TextDecoder().decode(response.Payload),
+      );
+
+      if (responsePayload.statusCode !== 200) {
+        throw new Error(`Lambda Error: ${responsePayload.body}`);
+      }
+
+      return JSON.parse(responsePayload.body);
+    } catch (error) {
+      console.error('Error triggering process pdf lambda', error);
+      throw error;
+    }
+  }
 }

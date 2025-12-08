@@ -1,29 +1,31 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { AiService } from './ai.service';
-import { AppliedService } from 'src/applied/applied.service';
+import {
+  Body,
+  Controller,
+  NotFoundException,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AwsService } from 'src/aws/aws.service';
+import { JobsService } from 'src/jobs/jobs.service';
 
 @Controller('ai')
 export class AiController {
   constructor(
-    private readonly aiService: AiService,
-    private readonly appliedService: AppliedService,
+    private readonly jobService: JobsService,
+    private readonly awsService: AwsService,
   ) {}
 
   @Post('predict')
   @UseGuards(JWTAuthGuard)
   async getPrediction(@Body() inputDto: { jobId: number }) {
-    const applications = await this.appliedService.findWhere({
-      jobId: { id: inputDto.jobId },
-    });
+    const job = await this.jobService.findOne(inputDto.jobId);
+    if (!job) {
+      throw new NotFoundException();
+    }
+    const job_description = job.desc + job.req + job.resp;
 
-    // const cleanTexts = applications.map((app) => app.cleanText);
-    const job = applications[0].jobId;
-
-    const predictionResult = await this.aiService.runPrediction({
-      job_post_texts: [job.desc, job.resp, job.req],
-      resumes_texts: [],
-    });
+    const predictionResult = await this.awsService.predict(job_description);
     return {
       success: true,
       data: predictionResult,
