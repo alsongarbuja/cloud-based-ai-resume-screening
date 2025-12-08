@@ -3,11 +3,13 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const frontendCookieName = process.env.AUTH_COOKIE_NAME || "kaam-ai-auth-token";
-  const clientUrl = new URL(process.env.NEXT_PUBLIC_CLIENT_URL || "/", request.url);
 
-  console.log(frontendCookieName);
+  const host = request.headers.get("host");
+  const baseUrl = host
+    ? `https://${host}`
+    : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   (await cookies()).delete(frontendCookieName);
 
-  return NextResponse.redirect(clientUrl);
+  return NextResponse.redirect(new URL(baseUrl));
 }

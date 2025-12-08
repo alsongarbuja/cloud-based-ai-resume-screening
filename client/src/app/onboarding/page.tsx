@@ -1,19 +1,19 @@
 import { User } from "@/types";
-import { cookies } from "next/headers";
 import CompanyOnboardingForm from "@/components/auth/company-onboarding-form";
 import JobSeekerOnboardingForm from "@/components/auth/job-seeker-onboarding-form";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { getAuthToken } from "@/lib/server-only";
+import { redirect } from "next/navigation";
 
 const page = async () => {
-  const cookieStore = cookies();
-  const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "auth-token");
+  const authToken = await getAuthToken();
   let userData: User | null = null;
 
   if (authToken) {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile`, {
         headers: {
-          Cookie: `${process.env.AUTH_COOKIE_TOKEN_NAME || ""}=${authToken?.value}`,
+          Cookie: `${process.env.AUTH_COOKIE_TOKEN_NAME || "kaam-ai-auth-token"}=${authToken}`,
         },
       });
       const data = await res.json();
@@ -23,7 +23,7 @@ const page = async () => {
     }
 
     if (!userData) {
-      return null; // TODO: redirect instead of returning null
+      redirect("/");
     }
 
     if (userData.type === "org") {
@@ -33,7 +33,7 @@ const page = async () => {
             <ThemeToggle />
           </div>
           <div className="flex w-full max-w-md flex-col gap-8">
-            <CompanyOnboardingForm token={authToken.value} />
+            <CompanyOnboardingForm token={authToken} />
           </div>
         </div>
       );
@@ -45,13 +45,13 @@ const page = async () => {
           <ThemeToggle />
         </div>
         <div className="flex w-full max-w-md flex-col gap-8">
-          <JobSeekerOnboardingForm token={authToken.value} userId={userData.id} />
+          <JobSeekerOnboardingForm token={authToken} userId={userData.id} />
         </div>
       </div>
     );
   }
 
-  return null;
+  redirect("/");
 };
 
 export default page;
