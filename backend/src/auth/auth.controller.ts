@@ -74,11 +74,15 @@ export class AuthController {
       profilePic: user.profilePic,
     });
 
-    const token = await this.authService.generateToken(u as User);
+    const token = await this.authService.generateToken(u.user as User);
 
     if (token) {
+      let redirectTo = user.redirectTo || '/';
+      if (u.isNew) {
+        redirectTo = '/onboarding';
+      }
       res.redirect(
-        `${this.configService.get<string>('client.url')}/auth/callback?token=${token}&redirectTo=${user.redirectTo || '/'}`,
+        `${this.configService.get<string>('client.url')}/auth/callback?token=${token}&redirectTo=${redirectTo}`,
       );
     } else {
       res.redirect(

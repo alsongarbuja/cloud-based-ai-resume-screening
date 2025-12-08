@@ -47,13 +47,20 @@ export class AuthService {
     }
   }
 
-  async validateUser(user: Partial<User>): Promise<Partial<User>> {
+  async validateUser(
+    user: Partial<User>,
+  ): Promise<Partial<{ user: User; isNew: boolean }>> {
+    let isNew = false;
     let userData = await this.userService.validateUser(user.email!);
     if (!userData) {
+      isNew = true;
       userData = await this.userService.create(user as User);
     }
 
-    return userData;
+    return {
+      user: userData,
+      isNew,
+    };
   }
 
   async generateToken(user: User): Promise<string | null> {
