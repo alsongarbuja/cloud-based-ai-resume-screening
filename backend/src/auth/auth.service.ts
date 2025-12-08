@@ -1,5 +1,7 @@
 import {
+  ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -29,13 +31,20 @@ export class AuthService {
   }
 
   async signUp(registerDto: Record<string, string>) {
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    const user = await this.userService.create({
-      ...registerDto,
-      password: hashedPassword,
-      profilePic: `https://api.dicebear.com/9.x/initials/svg?seed=${registerDto.username}`,
-    } as CreateUserDto);
-    return user;
+    try {
+      const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+      const user = await this.userService.create({
+        ...registerDto,
+        password: hashedPassword,
+        profilePic: `https://api.dicebear.com/9.x/initials/svg?seed=${registerDto.username}`,
+      } as CreateUserDto);
+      return user;
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('Email already exists.');
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   async validateUser(user: Partial<User>): Promise<Partial<User>> {

@@ -13,9 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 
 const LoginForm = () => {
   const searchParams = useSearchParams();
-
+  const [error, setError] = useState("");
   const redirectTo = searchParams.get("redirect") || ROUTES.HOME;
-  const error = searchParams.get("error");
 
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["login"],
@@ -35,11 +34,17 @@ const LoginForm = () => {
       return data;
     },
     onSuccess(data) {
+      if (data && data.statusCode === 401) {
+        setError(data.message);
+      }
+
       if (data && data.message === "Login successful") {
         redirect(`/auth/callback?token=${data.token}`);
       }
     },
     onError(error) {
+      console.log(error.message);
+
       console.error(error);
     },
   });
@@ -70,15 +75,6 @@ const LoginForm = () => {
     }
 
     await mutateAsync(formData);
-    // try {
-    // } catch (error) {
-    //   console.error("Job seeker onboarding error:", error);
-    //   toast({
-    //     title: "Setup Error",
-    //     description: "Failed to set up your profile. Please try again.",
-    //     variant: "destructive",
-    //   });
-    // }
   };
 
   const handleInputChange = (field: keyof Pick<User, "email" | "password">, value: string) => {
@@ -101,6 +97,13 @@ const LoginForm = () => {
         <div className="bg-destructive/10 dark:bg-destructive/20 border border-destructive/50 text-destructive px-5 py-4 rounded-xl backdrop-blur-sm">
           <p className="font-semibold text-base mb-1.5">Authentication Failed</p>
           <p className="text-sm opacity-90">There was an error signing you in. Please try again.</p>
+        </div>
+      )}
+
+      {error === "Unauthorized" && (
+        <div className="bg-destructive/10 dark:bg-destructive/20 border border-destructive/50 text-destructive px-5 py-4 rounded-xl backdrop-blur-sm">
+          <p className="font-semibold text-base mb-1.5">Authentication Failed</p>
+          <p className="text-sm opacity-90">Either your email or password is incorrect.</p>
         </div>
       )}
 
@@ -136,6 +139,7 @@ const LoginForm = () => {
               <Input
                 id="email"
                 value={formData.email}
+                className={error === "Unauthorized" ? "border-destructive" : ""}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="Enter your email"
                 type="email"
@@ -149,6 +153,7 @@ const LoginForm = () => {
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
+                className={error === "Unauthorized" ? "border-destructive" : ""}
                 onChange={(e) => handleInputChange("password", e.target.value)}
                 placeholder="Enter your password"
                 type="password"

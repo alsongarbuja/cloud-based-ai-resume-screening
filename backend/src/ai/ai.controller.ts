@@ -17,12 +17,12 @@ export class AiController {
       jobId: { id: inputDto.jobId },
     });
 
-    const cleanTexts = applications.map((app) => app.cleanText);
+    // const cleanTexts = applications.map((app) => app.cleanText);
     const job = applications[0].jobId;
 
     const predictionResult = await this.aiService.runPrediction({
       job_post_texts: [job.desc, job.resp, job.req],
-      resumes_texts: cleanTexts,
+      resumes_texts: [],
     });
     return {
       success: true,

@@ -37,7 +37,7 @@ export class AppliedController {
       req.user.id,
       createAppliedDto.jobId,
       resume.resumeLink,
-      resume.cleanResumeText,
+      // resume.cleanResumeText,
     );
   }
 

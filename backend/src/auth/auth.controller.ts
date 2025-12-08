@@ -12,6 +12,7 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { User } from 'src/users/entities/user.entity';
 import { Request, Response } from 'express';
+import { isPasswordStrong } from './utils/pass.util';
 
 @Controller('auth')
 export class AuthController {
@@ -28,13 +29,6 @@ export class AuthController {
     const u = await this.authService.signIn(signInDto.email, signInDto.pass);
     const token = await this.authService.generateToken(u);
 
-    // res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'none',
-    //   maxAge: 1000 * 60 * 5,
-    // });
-
     return res.json({
       message: 'Login successful',
       token,
@@ -46,20 +40,23 @@ export class AuthController {
     @Res() res: Response,
     @Body() registerDto: Record<string, string>,
   ) {
-    const u = await this.authService.signUp(registerDto);
-    const token = await this.authService.generateToken(u);
+    try {
+      if (!isPasswordStrong(registerDto.password)) {
+        return res.json({
+          message: 'Password weak',
+          status: 400,
+        });
+      }
+      const u = await this.authService.signUp(registerDto);
+      const token = await this.authService.generateToken(u);
 
-    // res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'none',
-    //   maxAge: 1000 * 60 * 5,
-    // });
-
-    return res.json({
-      message: 'Registered successfully',
-      token,
-    });
+      return res.json({
+        message: 'Registered successfully',
+        token,
+      });
+    } catch (error) {
+      return res.json(error.response);
+    }
   }
 
   @Get('google')
@@ -80,15 +77,6 @@ export class AuthController {
     const token = await this.authService.generateToken(u as User);
 
     if (token) {
-      // console.log(token); // TODO: remove in later push
-
-      // res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
-      //   httpOnly: true,
-      //   secure: process.env.NODE_ENV === 'production',
-      //   sameSite: 'none',
-      //   maxAge: 1000 * 60 * 5,
-      // });
-
       res.redirect(
         `${this.configService.get<string>('client.url')}/auth/callback?token=${token}&redirectTo=${user.redirectTo || '/'}`,
       );
@@ -101,13 +89,6 @@ export class AuthController {
 
   @Get('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    // res.cookie(process.env.COOKIE_NAME || 'kaam-ai-auth-token', '', {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'none',
-    //   expires: new Date(0),
-    // });
-
     res.redirect(
       this.configService.get<string>('client.url') + '/auth/logout-callback',
     );
