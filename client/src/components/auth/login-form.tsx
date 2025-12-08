@@ -38,6 +38,10 @@ const LoginForm = () => {
         setError(data.message);
       }
 
+      if (data && data.statusCode === 404) {
+        setError("Notfound");
+      }
+
       if (data && data.message === "Login successful") {
         redirect(`/auth/callback?token=${data.token}`);
       }
@@ -93,10 +97,10 @@ const LoginForm = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      {error === "AuthenticationFailed" && (
+      {error === "Notfound" && (
         <div className="bg-destructive/10 dark:bg-destructive/20 border border-destructive/50 text-destructive px-5 py-4 rounded-xl backdrop-blur-sm">
-          <p className="font-semibold text-base mb-1.5">Authentication Failed</p>
-          <p className="text-sm opacity-90">There was an error signing you in. Please try again.</p>
+          <p className="font-semibold text-base mb-1.5">User not found</p>
+          <p className="text-sm opacity-90">There was no user with given email. Please register.</p>
         </div>
       )}
 

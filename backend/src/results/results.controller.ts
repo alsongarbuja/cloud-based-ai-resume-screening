@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
 import { ResultsService } from './results.service';
 import { CreateResultDto } from './dto/create-result.dto';
 import { UpdateResultDto } from './dto/update-result.dto';
@@ -12,23 +12,18 @@ export class ResultsController {
     return this.resultsService.create(createResultDto);
   }
 
-  @Get()
-  findAll() {
-    return this.resultsService.findAll();
+  @Get(':jobId')
+  findOne(@Param('jobId') jobId: string) {
+    return this.resultsService.findResultsWhere({ jobId: +jobId });
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.resultsService.findOne(+id);
+  @Get(':jobId/check')
+  checkResult(@Param('jobId') jobId: string) {
+    return this.resultsService.check({ jobId: +jobId });
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateResultDto: UpdateResultDto) {
     return this.resultsService.update(+id, updateResultDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.resultsService.remove(+id);
   }
 }

@@ -30,6 +30,10 @@ export class AwsService {
 
     this.lambdaClient = new LambdaClient({
       region: configService.getOrThrow('aws.region'),
+      credentials: {
+        accessKeyId: configService.getOrThrow('aws.accessId'),
+        secretAccessKey: configService.getOrThrow('aws.secretAccessKey'),
+      },
     });
   }
 
@@ -58,40 +62,22 @@ export class AwsService {
     }
   }
 
-  async processPdf(url: string) {
-    const command = new InvokeCommand({
-      FunctionName: 'pdf-processor',
-      InvocationType: 'RequestResponse',
-      Payload: JSON.stringify({ url }),
-    });
-
-    try {
-      const response = await this.lambdaClient.send(command);
-      const responsePayload = JSON.parse(
-        new TextDecoder().decode(response.Payload),
-      );
-
-      if (responsePayload.statusCode !== 200) {
-        throw new Error(`Lambda Error: ${responsePayload.body}`);
-      }
-
-      return JSON.parse(responsePayload.body);
-    } catch (error) {
-      console.error('Error triggering process pdf lambda', error);
-      throw error;
-    }
-  }
-
-  async predict(job_description: string) {
+  async predict(job_description: string, applicants_number: number) {
     const command = new InvokeCommand({
       FunctionName: 'resume-ranking-function',
       InvocationType: 'RequestResponse',
-      Payload: JSON.stringify({ job_description }),
+      Payload: JSON.stringify({
+        job_description,
+        top_k: applicants_number,
+        s3_bucke: this.configService.get<string>('aws.bucketName') || 'kaam-ai',
+      }),
     });
 
     try {
       const response = await this.lambdaClient.send(command);
-      const responsePayload = JSON.parse(
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const responsePayload: Record<string, string | number> = JSON.parse(
         new TextDecoder().decode(response.Payload),
       );
 
@@ -99,7 +85,7 @@ export class AwsService {
         throw new Error(`Lambda Error: ${responsePayload.body}`);
       }
 
-      return JSON.parse(responsePayload.body);
+      return JSON.parse(responsePayload.body as string) as Record<string, any>;
     } catch (error) {
       console.error('Error triggering process pdf lambda', error);
       throw error;

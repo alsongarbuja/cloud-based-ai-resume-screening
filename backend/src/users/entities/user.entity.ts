@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { UserType } from './user.enum';
 import { Saved } from 'src/saved/entities/saved.entity';
+import { Result } from 'src/results/entities/result.entity';
 
 @Entity()
 export class User {
@@ -50,6 +51,9 @@ export class User {
 
   @OneToMany(() => Saved, (saved) => saved.user)
   savedJobs: Saved[];
+
+  @OneToMany(() => Result, (result) => result.userId)
+  results: Result[];
 
   @CreateDateColumn()
   createdAt: Date;

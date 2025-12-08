@@ -83,5 +83,18 @@ export interface JobApplication {
   updatedAt: Date;
 }
 
+export interface Rank {
+  resumeLink: string;
+  rank: number;
+  score: number;
+  user: User;
+}
+
+export interface Result {
+  id: number;
+  jobId: number;
+  ranking: Rank[];
+}
+
 export type UserType = "COMPANY" | "JOB_SEEKER";
 export type JobStatus = "DRAFT" | "ACTIVE" | "EXPIRED";
