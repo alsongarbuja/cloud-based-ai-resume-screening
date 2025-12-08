@@ -2,10 +2,12 @@ import "server-only";
 import { cache } from "react";
 import { Applied, SavedJob, User } from "@/types";
 
+const COOKIE_TOKEN_NAME = process.env.AUTH_COOKIE_TOKEN_NAME || "kaam-ai-auth-token";
+
 export const getUserProfile = cache(async (token: string): Promise<User | null> => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile`, {
     headers: {
-      Cookie: `auth-token=${token}`,
+      Cookie: `${COOKIE_TOKEN_NAME}=${token}`,
     },
   });
   if (!res.ok) return null;
@@ -16,7 +18,7 @@ export const getUserProfile = cache(async (token: string): Promise<User | null> 
 export const getMyApplications = cache(async (token: string): Promise<Applied[] | null> => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/applications`, {
     headers: {
-      Cookie: `auth-token=${token}`,
+      Cookie: `${COOKIE_TOKEN_NAME}=${token}`,
     },
   });
   if (!res.ok) return null;
@@ -27,7 +29,7 @@ export const getMyApplications = cache(async (token: string): Promise<Applied[] 
 export const getMySavedJobs = cache(async (token: string): Promise<SavedJob[] | null> => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/saved`, {
     headers: {
-      Cookie: `auth-token=${token}`,
+      Cookie: `${COOKIE_TOKEN_NAME}=${token}`,
     },
   });
   if (!res.ok) return null;
@@ -39,7 +41,7 @@ export const getJobApplications = cache(
   async (token: string, jobId: number): Promise<Applied[] | null> => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/applied/job/${jobId}`, {
       headers: {
-        Cookie: `auth-token=${token}`,
+        Cookie: `${COOKIE_TOKEN_NAME}=${token}`,
       },
     });
     if (!res.ok) return null;
@@ -54,7 +56,7 @@ export const rankAppplicant = cache(async (token: string, jobId: number) => {
     body: JSON.stringify({ jobId }),
     headers: {
       "Content-Type": "application/json",
-      Cookie: `auth-token=${token}`,
+      Cookie: `${COOKIE_TOKEN_NAME}=${token}`,
     },
   });
   if (!res.ok) return null;

@@ -36,7 +36,7 @@ const LoginForm = () => {
     },
     onSuccess(data) {
       if (data && data.message === "Login successful") {
-        redirect("/");
+        redirect(`/auth/callback?token=${data.token}`);
       }
     },
     onError(error) {

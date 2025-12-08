@@ -1,10 +1,9 @@
 import Navbar from "@/components/layouts/navbar";
 import CompanyJobListings from "@/components/jobs/company-job-listings";
-import { cookies } from "next/headers";
+import { getAuthToken } from "@/lib/server-only";
 
 export default async function MyJobsPage() {
-  const cookieStore = cookies();
-  const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "auth-token");
+  const authToken = await getAuthToken();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,7 +14,7 @@ export default async function MyJobsPage() {
           <p className="mt-2 text-muted-foreground">Manage all the jobs you've posted</p>
         </div>
 
-        <CompanyJobListings token={authToken?.value || ""} />
+        <CompanyJobListings token={authToken} />
       </div>
     </div>
   );
