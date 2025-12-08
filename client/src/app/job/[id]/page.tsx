@@ -48,8 +48,8 @@ export default async function JobDetailPage({ params }: { params: Params }) {
 
   const user = await getUserProfile(authToken);
   const job = await getJobById(+id);
-  const hasApplied = await checkHasApplied(+id, authToken);
-  const hasSaved = await checkHasSaved(+id, authToken);
+  const hasApplied = user?.type === "user" ? await checkHasApplied(+id, authToken) : null;
+  const hasSaved = user?.type === "user" ? await checkHasSaved(+id, authToken) : null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

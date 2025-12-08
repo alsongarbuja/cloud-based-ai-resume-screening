@@ -14,8 +14,8 @@ import { CreateResumeDto } from './dto/create-resume.dto';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from 'src/aws/aws.service';
-import { Roles } from 'src/decorators/roles.decorator';
-import { UserType } from 'src/users/entities/user.enum';
+// import { Roles } from 'src/decorators/roles.decorator';
+// import { UserType } from 'src/users/entities/user.enum';
 
 @Controller('resumes')
 export class ResumesController {
@@ -26,7 +26,7 @@ export class ResumesController {
 
   @Post()
   @UseGuards(JWTAuthGuard)
-  @Roles(UserType.USER)
+  // @Roles(UserType.USER)
   @UseInterceptors(FileInterceptor('resume'))
   async create(
     @Req() req,
@@ -48,7 +48,7 @@ export class ResumesController {
 
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
-  @Roles(UserType.USER)
+  // @Roles(UserType.USER)
   remove(@Param('id') id: string) {
     return this.resumesService.remove(+id);
   }
