@@ -1,33 +1,9 @@
-// import { userConnected } from "@/utils/userConnected";
 import Navbar from "@/components/layouts/navbar";
-// import { redirect } from "next/navigation";
-// import dynamic from "next/dynamic";
-// import { ROUTES, getDynamicRoute } from "@/config/routes";
-import { cookies } from "next/headers";
 import { JobPostingForm } from "@/components/jobs";
-
-// const JobPostingForm = dynamic(() => import("@/components/jobs/job-posting-form"), {
-//   loading: () => (
-//     <div className="flex items-center justify-center py-12">
-//       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-//     </div>
-//   ),
-// });
+import { getAuthToken } from "@/lib/server-only";
 
 export default async function PostJobPage() {
-  // await userConnected();
-  const cookieStore = cookies();
-  const authToken = (await cookieStore).get(process.env.AUTH_COOKIE_TOKEN_NAME || "auth-token");
-
-  // const session = await auth();
-
-  // if (!session?.user || session.user.userType !== "COMPANY") {
-  //   redirect(ROUTES.HOME);
-  // }
-
-  // if (!session.user.companyId) {
-  //   redirect(getDynamicRoute.registerWithError("CompleteProfile"));
-  // }
+  const authToken = await getAuthToken();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,7 +16,7 @@ export default async function PostJobPage() {
           </p>
         </div>
 
-        <JobPostingForm token={authToken?.value || ""} />
+        <JobPostingForm token={authToken} />
       </div>
     </div>
   );

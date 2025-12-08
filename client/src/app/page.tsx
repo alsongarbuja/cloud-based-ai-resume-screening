@@ -33,11 +33,17 @@ export default async function PublicJobListings({ searchParams }: SearchParams) 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile`, {
         headers: {
-          Cookie: `${process.env.AUTH_COOKIE_TOKEN_NAME || ""}=${authToken}`,
+          Cookie: `${process.env.AUTH_COOKIE_TOKEN_NAME || "kaam-ai-auth-token"}=${authToken}`,
         },
       });
       const data = await res.json();
-      userData = data;
+      console.log(data);
+
+      if (data.statusCode && data.statusCode === 401) {
+        userData = null;
+      } else {
+        userData = data;
+      }
     } catch (error) {
       console.error(error);
     }

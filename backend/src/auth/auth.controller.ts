@@ -28,15 +28,16 @@ export class AuthController {
     const u = await this.authService.signIn(signInDto.email, signInDto.pass);
     const token = await this.authService.generateToken(u);
 
-    res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 5,
-    });
+    // res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'none',
+    //   maxAge: 1000 * 60 * 5,
+    // });
 
     return res.json({
       message: 'Login successful',
+      token,
     });
   }
 
@@ -48,15 +49,16 @@ export class AuthController {
     const u = await this.authService.signUp(registerDto);
     const token = await this.authService.generateToken(u);
 
-    res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 5,
-    });
+    // res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'none',
+    //   maxAge: 1000 * 60 * 5,
+    // });
 
     return res.json({
       message: 'Registered successfully',
+      token,
     });
   }
 
@@ -78,17 +80,17 @@ export class AuthController {
     const token = await this.authService.generateToken(u as User);
 
     if (token) {
-      console.log(token); // TODO: remove in later push
+      // console.log(token); // TODO: remove in later push
 
-      res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
-        maxAge: 1000 * 60 * 5,
-      });
+      // res.cookie(process.env.COOKIE_NAME || 'auth-token', token, {
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV === 'production',
+      //   sameSite: 'none',
+      //   maxAge: 1000 * 60 * 5,
+      // });
 
       res.redirect(
-        `${this.configService.get<string>('client.url')}${user.redirectTo || ''}`,
+        `${this.configService.get<string>('client.url')}/auth/callback?token=${token}&redirectTo=${user.redirectTo || '/'}`,
       );
     } else {
       res.redirect(
@@ -99,15 +101,16 @@ export class AuthController {
 
   @Get('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    res.cookie(process.env.COOKIE_NAME || 'auth-token', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      expires: new Date(0),
-    });
+    // res.cookie(process.env.COOKIE_NAME || 'kaam-ai-auth-token', '', {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'none',
+    //   expires: new Date(0),
+    // });
 
     res.redirect(
-      this.configService.get<string>('client.url') || 'http://localhost:3000',
+      this.configService.get<string>('client.url') + '/auth/logout-callback' ||
+        'http://localhost:3000/auth/logout-callback',
     );
   }
 }

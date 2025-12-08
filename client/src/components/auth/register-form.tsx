@@ -51,7 +51,7 @@ const RegisterForm = ({ searchParams }: RegisterFormProps) => {
     },
     onSuccess(data) {
       if (data && data.message === "Registered successfully") {
-        redirect("/onboarding");
+        redirect(`/auth/callback?token=${data.token}&redirectTo=/onboarding`);
       }
     },
     onError(error) {
