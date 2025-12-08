@@ -25,7 +25,7 @@ export default function Error({
           </p>
         </div>
 
-        <div className="flex gap-4 justify-center">
+        <div className="flex gap-4 justify-center mt-2">
           <Button onClick={() => reset()}>Try Again</Button>
           <Button variant="outline" onClick={() => (window.location.href = "/")}>
             Go Home
