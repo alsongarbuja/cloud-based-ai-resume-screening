@@ -14,14 +14,12 @@ export class ResumesService {
   create(
     createResumeDto: CreateResumeDto & {
       resumeLink: string;
-      cleanedResumeText: string;
     },
   ) {
     const resume = this.resumeRepository.create(createResumeDto);
     const savedResume = this.resumeRepository.insert({
       name: resume.name,
       resumeLink: resume.resumeLink,
-      cleanResumeText: resume.cleanResumeText,
       uploadedBy: { id: +createResumeDto.userId },
     });
     return savedResume;

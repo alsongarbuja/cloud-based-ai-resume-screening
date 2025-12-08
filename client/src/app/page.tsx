@@ -37,7 +37,6 @@ export default async function PublicJobListings({ searchParams }: SearchParams) 
         },
       });
       const data = await res.json();
-      console.log(data);
 
       if (data.statusCode && data.statusCode === 401) {
         userData = null;

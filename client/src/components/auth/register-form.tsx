@@ -25,12 +25,16 @@ type RegisterUser = Pick<User, "email" | "password" | "username">;
 
 const RegisterForm = ({ searchParams }: RegisterFormProps) => {
   const [userType, setUserType] = useState<"user" | "org" | null>(null);
+  const [formData, setFormData] = useState<RegisterUser>({
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState<Partial<RegisterUser>>({});
+  const { toast } = useToast();
   const router = useRouter();
 
   const redirectTo = searchParams?.redirect || ROUTES.HOME;
   const isNewUser = searchParams?.new === "true";
-  const error = searchParams?.error;
-  const email = searchParams?.email;
 
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["register"],
@@ -50,6 +54,19 @@ const RegisterForm = ({ searchParams }: RegisterFormProps) => {
       return data;
     },
     onSuccess(data) {
+      if (data && data.statusCode === 409) {
+        setErrors({
+          email: "Email already registered",
+        });
+      }
+
+      if (data && data.message === "Password weak") {
+        setErrors({
+          password:
+            "Password must be atleast 8 characters, have atleast one number, one special character and one capital letter",
+        });
+      }
+
       if (data && data.message === "Registered successfully") {
         redirect(`/auth/callback?token=${data.token}&redirectTo=/onboarding`);
       }
@@ -58,12 +75,6 @@ const RegisterForm = ({ searchParams }: RegisterFormProps) => {
       console.error(error);
     },
   });
-  const [formData, setFormData] = useState<RegisterUser>({
-    email: "",
-    password: "",
-  });
-  const [errors, setErrors] = useState<Partial<RegisterUser>>({});
-  const { toast } = useToast();
 
   const validateForm = (): boolean => {
     const newErrors: Partial<RegisterUser> = {};
@@ -85,15 +96,6 @@ const RegisterForm = ({ searchParams }: RegisterFormProps) => {
     }
 
     await mutateAsync(formData);
-    // try {
-    // } catch (error) {
-    //   console.error("Job seeker onboarding error:", error);
-    //   toast({
-    //     title: "Setup Error",
-    //     description: "Failed to set up your profile. Please try again.",
-    //     variant: "destructive",
-    //   });
-    // }
   };
 
   const handleInputChange = (field: keyof RegisterUser, value: string) => {
@@ -128,26 +130,6 @@ const RegisterForm = ({ searchParams }: RegisterFormProps) => {
             : "Join our platform and start your journey"}
         </p>
       </div>
-
-      {error === "AlreadyRegistered" && (
-        <div className="bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/50 text-blue-600 dark:text-blue-400 px-5 py-4 rounded-xl backdrop-blur-sm">
-          <p className="font-semibold text-base mb-1.5">Account Already Exists</p>
-          <p className="text-sm opacity-90 mb-3">
-            {email ? `An account for ${email} already exists. ` : "You already have an account. "}
-            Please sign in instead of creating a new account.
-          </p>
-          <Link
-            href={
-              redirectTo !== ROUTES.HOME
-                ? getDynamicRoute.loginWithRedirect(redirectTo)
-                : ROUTES.LOGIN
-            }
-            className="text-sm font-semibold underline hover:no-underline inline-flex items-center gap-1 hover:gap-2 transition-all"
-          >
-            Sign in instead <span>→</span>
-          </Link>
-        </div>
-      )}
 
       <div className="space-y-4">
         <Label className="text-sm font-semibold">I am a:</Label>
@@ -195,6 +177,7 @@ const RegisterForm = ({ searchParams }: RegisterFormProps) => {
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
             placeholder="Enter your email"
+            className={errors.email ? "border-destructive" : ""}
             type="email"
             required={true}
             disabled={isPending}

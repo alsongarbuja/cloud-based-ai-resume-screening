@@ -11,12 +11,12 @@ export class AppliedService {
     private appliedRepository: Repository<Applied>,
   ) {}
 
-  create(userId: number, jobId: number, usedResume: string, cleanText: string) {
+  create(userId: number, jobId: number, usedResume: string) {
     const applied = this.appliedRepository.create({
       userId: { id: userId },
       jobId: { id: jobId },
       usedResume,
-      cleanText,
+      // cleanText,
     });
     const savedApplied = this.appliedRepository.insert(applied);
     return savedApplied;

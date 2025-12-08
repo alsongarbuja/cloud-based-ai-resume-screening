@@ -127,6 +127,7 @@ export default function JobPostingForm({ token }: { token: string }) {
           resp: responsibilities,
           req: requriements,
         }),
+        credentials: "include",
       });
 
       const result = await response.json();

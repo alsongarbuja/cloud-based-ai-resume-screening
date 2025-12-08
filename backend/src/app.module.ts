@@ -16,8 +16,8 @@ import { AwsModule } from './aws/aws.module';
 import { AiModule } from './ai/ai.module';
 import { SavedModule } from './saved/saved.module';
 import configuration from './config/configuration';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './guards/roles.guard';
+// import { APP_GUARD } from '@nestjs/core';
+// import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
@@ -54,10 +54,10 @@ import { RolesGuard } from './guards/roles.guard';
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
   ],
 })
 export class AppModule {

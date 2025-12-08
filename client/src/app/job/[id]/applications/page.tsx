@@ -17,11 +17,15 @@ export default async function JobApplicationsPage({ params }: { params: Promise<
       <Navbar />
       <div className="pt-8 pb-12">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">Applications for {applications?.[0].jobId.title}</h1>
+          <h1 className="text-3xl font-bold">Applications for the job</h1>
           <p className="mt-2 text-muted-foreground">{applications?.length} applicants</p>
         </div>
 
-        <PredictButton id={+id} token={authToken} />
+        <PredictButton
+          id={+id}
+          token={authToken}
+          disabled={applications && applications.length <= 0}
+        />
 
         {applications && applications.length > 0 ? (
           <>
@@ -39,10 +43,10 @@ export default async function JobApplicationsPage({ params }: { params: Promise<
         ) : (
           <EmptyState
             icon={FileText}
-            title="No applications yet"
-            description="Start applying to jobs to see your applications here."
-            actionLabel="Browse Jobs"
-            actionHref="/"
+            title="No applicants yet"
+            description="You will see the list after someone applys for the job."
+            actionLabel="Browse your other Jobs"
+            actionHref="/my-jobs"
           />
         )}
       </div>

@@ -3,7 +3,15 @@
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "../ui";
 
-export function PredictButton({ id, token }: { id: number; token: string }) {
+export function PredictButton({
+  id,
+  token,
+  disabled,
+}: {
+  id: number;
+  token: string;
+  disabled: boolean | null;
+}) {
   const { mutateAsync } = useMutation({
     mutationKey: ["predict", id],
     mutationFn: async (jobId: number) => {
@@ -22,8 +30,9 @@ export function PredictButton({ id, token }: { id: number; token: string }) {
 
   return (
     <Button
-      className="my-2"
+      className="my-2 cursor-pointer disabled:cursor-not-allowed"
       variant="outline"
+      disabled={!!disabled}
       onClick={async () => {
         await mutateAsync(id);
       }}
